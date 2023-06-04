@@ -1,4 +1,6 @@
 # ecodepost
+## 论坛样式
+![image](./docs/statics/img.png)
 ## 支持功能
 * 文章
   * 流式布局

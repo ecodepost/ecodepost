@@ -1,0 +1,13 @@
+logs
+bff/bff
+bin
+.idea
+.vscode
+bak
+.bak
+*.log
+go.work
+go.work.sum
+ecodepost
+bff/pkg/server/ui/dist
+config/local-askuy.toml

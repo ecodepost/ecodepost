@@ -1,0 +1,43 @@
+# This is an example .goreleaser.yml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
+before:
+  hooks:
+    - ls -rtlh
+    - go mod download -x
+builds:
+  - id: ecodepost
+    main: ./
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    binary: ecodepost
+    ldflags:
+      - -s -w -extldflags -static -X github.com/gotomicro/ego/core/eapp.appName={{.ProjectName}} -X github.com/gotomicro/ego/core/eapp.buildAppVersion={{.Version}} -X github.com/gotomicro/ego/core/eapp.buildTime={{.Date}}
+archives:
+  - id: ecodepost
+    builds:
+      - ecodepost
+    name_template: "ecodepost-v{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    files:
+#      - LICENSE
+#      - scripts/migration
+#      - docker-compose.yml
+      - src: config/*
+        dst: config
+        strip_parent: true
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

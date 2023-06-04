@@ -1,0 +1,50 @@
+name: goreleaser
+
+on:
+  push:
+    tags:
+      - "v**"
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.yarn
+          key: yarn-${{ hashFiles('ecodepost-fe/yarn.lock') }}
+          restore-keys: yarn-
+      - name: Run EcodePost-FE
+        run: |
+          git clone https://github.com/ecodepost/ecodepost-fe.git
+          cd ecodepost-fe
+          yarn install --frozen-lockfile
+          yarn run build
+          cp -rf dist ../bff/pkg/server/ui/
+          cd ../ && rm -rf ecodepost-fe
+      - name: Set up Go 1.20
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.20"
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          # either 'goreleaser' (default) or 'goreleaser-pro'
+          distribution: goreleaser
+          version: latest
+          args: release --clean --debug
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
