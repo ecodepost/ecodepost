@@ -53,8 +53,8 @@ func Init() error {
 	// 必须注册在grpc前面
 	// 本地环境才启用，k8s resolver
 	k8sregistry.Load("bff.registry").Build(k8sregistry.WithClient(ek8s.Load("bff.k8s").Build()))
-	userConn := egrpc.Load("bff.grpc.user").Build()
-	resourceConn := egrpc.Load("bff.grpc.resource").Build()
+	userConn := egrpc.Load("grpc.user").Build()
+	resourceConn := egrpc.Load("grpc.resource").Build()
 	GrpcCommunity = communityv1.NewCommunityClient(userConn)
 	GrpcUser = userv1.NewUserClient(userConn)
 	GrpcCount = countv1.NewCountClient(userConn)

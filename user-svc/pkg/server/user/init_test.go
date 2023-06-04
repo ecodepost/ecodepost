@@ -29,7 +29,7 @@ func init() {
 	if err != nil {
 		log.Fatalf("init exited with error: %v", err)
 	}
-	invoker.Db = egorm.Load("mysql.user").Build()
+	invoker.Db = egorm.Load("mysql").Build()
 	service.Init()
 	// 初始化bufnet gRPC的测试服务
 	svc = Server()

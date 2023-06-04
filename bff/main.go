@@ -18,7 +18,6 @@ import (
 
 func main() {
 	err := ego.New().OrderServe(
-		//egovernor.Load("server.governor").Build(),
 		server.ServeHttp(),
 	).Run()
 	if err != nil {

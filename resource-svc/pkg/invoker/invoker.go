@@ -21,9 +21,7 @@ import (
 var (
 	Logger        *elog.Component
 	Db            *egorm.Component
-	CommentDb     *egorm.Component
 	Redis         *eredis.Component
-	CommentRedis  *eredis.Component
 	AliSts        *oss.Component
 	Guid          *eguid.Component
 	GrpcUser      userv1.UserClient
@@ -35,18 +33,16 @@ var (
 
 func Init() error {
 	Logger = elog.DefaultLogger
-	Db = egorm.Load("mysql.default").Build()
-	CommentDb = egorm.Load("mysql.default").Build()
+	Db = egorm.Load("mysql").Build()
 	Redis = eredis.Load("redis").Build()
 	Guid = eguid.Load("resource-svc.guid").Build()
 	k8sregistry.Load("resource-svc.registry").Build(k8sregistry.WithClient(ek8s.Load("resource-svc.k8s").Build()))
-	userConn := egrpc.Load("resource-svc.grpc.usersvc").Build().ClientConn
+	userConn := egrpc.Load("grpc.user").Build()
 	GrpcUser = userv1.NewUserClient(userConn)
 	GrpcStat = statv1.NewStatClient(userConn)
 	GrpcLogger = loggerv1.NewLoggerClient(userConn)
 	GrpcCommunity = communityv1.NewCommunityClient(userConn)
 	GrpcNotify = notifyv1.NewNotifyClient(userConn)
-	CommentRedis = eredis.Load("redis").Build(eredis.WithStub())
 	AliSts = oss.Load("oss").Build()
 	return nil
 }

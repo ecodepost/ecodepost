@@ -18,7 +18,7 @@ var (
 )
 
 func Init() error {
-	Db = egorm.Load("mysql.user").Build()
+	Db = egorm.Load("mysql").Build()
 	Guid = eguid.Load("user-svc.guid").Build()
 	UserGuid = eguid.Load("user-svc.userGuid").Build()
 	Redis = eredis.Load("redis").Build()

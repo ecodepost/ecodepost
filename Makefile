@@ -27,7 +27,7 @@ run_all_askuy:
 
 install:export EGO_DEBUG=true
 install:
-	@cd $(APP_PATH) && go run ain.go --config=config/local.toml --job=install
+	@cd $(APP_PATH) && go run main.go --config=config/local.toml --job=install
 
 init:export EGO_DEBUG=true
 init:

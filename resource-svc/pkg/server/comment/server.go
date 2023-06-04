@@ -59,7 +59,7 @@ func (GrpcServer) Create(ctx context.Context, req *commentv1.CreateReq) (*commen
 		Ctime:   nowTime,
 		Utime:   nowTime,
 	}
-	commentSubjectId, err := service.CommentSubjectCreate(invoker.CommentDb.WithContext(ctx), data)
+	commentSubjectId, err := service.CommentSubjectCreate(invoker.Db.WithContext(ctx), data)
 	if err != nil {
 		return nil, errcodev1.ErrDbError().WithMessage("CreateCommentSubject Err1").WithMetadata(map[string]string{"err": err.Error()})
 	}
@@ -125,7 +125,7 @@ func (GrpcServer) Create(ctx context.Context, req *commentv1.CreateReq) (*commen
 
 func (c GrpcServer) List(ctx context.Context, req *commentv1.ListReq) (resp *commentv1.ListRes, err error) {
 	// 获取subject信息
-	subjectId, cntComment, err := c.singleSubjectInfoByGuid(invoker.CommentDb.WithContext(ctx), req.GetBizGuid(), req.GetBizType())
+	subjectId, cntComment, err := c.singleSubjectInfoByGuid(invoker.Db.WithContext(ctx), req.GetBizGuid(), req.GetBizType())
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ func (c GrpcServer) List(ctx context.Context, req *commentv1.ListReq) (resp *com
 	for _, v := range indexList {
 		commentInfo := commentMap[v]
 		if commentInfo.CntChildComment > 0 {
-			list, _, hasMore, err := service.Index.GetSubIndexListByReplyToRootIdByGuid(ctx, invoker.CommentDb.WithContext(ctx), commentInfo.CommentGuid)
+			list, _, hasMore, err := service.Index.GetSubIndexListByReplyToRootIdByGuid(ctx, invoker.Db.WithContext(ctx), commentInfo.CommentGuid)
 			if err != nil {
 				// 因为被删除，所以找不到，那么不能continue
 				elog.Error("GetSubIndexListByReplyToRootId error", elog.FieldErr(err))

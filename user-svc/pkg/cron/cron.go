@@ -21,7 +21,7 @@ var (
 func NotifyCron() ecron.Ecron {
 	// todo sync.Once
 	invoker.Redis = eredis.Load("redis").Build()
-	invoker.Db = egorm.Load("mysql.user").Build()
+	invoker.Db = egorm.Load("mysql").Build()
 	notifyComp = enotify2.DefaultContainer().Build(enotify2.WithDb(invoker.Db))
 	notifyComp.Start()
 	// 构造分布式任务锁，目前已实现redis版本. 如果希望自定义，可以实现 ecron.Lock 接口
