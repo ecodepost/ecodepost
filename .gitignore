@@ -11,3 +11,4 @@ go.work.sum
 ecodepost
 bff/pkg/server/ui/dist
 config/local-askuy.toml
+postimage
