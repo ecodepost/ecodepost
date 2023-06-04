@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "common/v1;commonv1";
+
+// [enum 缩写原则]:
+//   1. 超过4个字母后可以考虑缩写。
+//   2. 省略元音与重复的字母，比如: TarGeT->TGT; NoTiFy -> NTF; STaTuS -> STS;
+//   3. 多个单词组成，可以直接使用首字母，比如 UserAgent -> UA; UserAuthStatus -> UAS;
+//   4. 一定要加上完整英文注释说明，比如 UA 上一行，必须注释『// UA:UserAgent 用户代理』
+
+// AUDIT:Audit 审核相关枚举值
+message AUDIT {
+  // STATUS:AuditStatus 审核状态
+  enum STATUS {
+    // 无效枚举值
+    STATUS_INVALID = 0;
+    // 审核提交
+    STATUS_APPLY = 1;
+    // 审核重新提交
+    STATUS_RE_APPLY = 2;
+    // 审核通过
+    STATUS_PASS = 3;
+    // 审核拒绝
+    STATUS_REJECT = 4;
+  }
+  // TYPE:AuditType 审核类型
+  enum TYPE {
+    // 无效枚举值
+    TYPE_INVALID = 0;
+    // TYPE_COMMUNITY
+    TYPE_COMMUNITY = 1;
+    // 空间分组
+    TYPE_SPACE_GROUP = 2;
+    // 空间
+    TYPE_SPACE = 3;
+    // GOOD
+    TYPE_GOOD = 4;
+    // GOOD_SKU
+    TYPE_GOOD_SKU = 5;
+    // 创建社区权限
+    TYPE_CREATE_CMT = 6;
+  }
+}

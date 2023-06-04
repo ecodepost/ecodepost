@@ -1,0 +1,229 @@
+syntax = "proto3";
+
+package community.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum_common.proto";
+import "common/v1/enum_community.proto";
+import "common/v1/user.proto";
+import "validate/validate.proto";
+
+option go_package = "community/v1;communityv1";
+
+// 社区
+service Community {
+  // 社区首页信息
+  rpc Home(HomeReq) returns (HomeRes);
+  // 获取社区主题
+  rpc GetTheme(GetThemeReq) returns (GetThemeRes);
+  // 设置社区主题
+  rpc SetTheme(SetThemeReq) returns (SetThemeRes);
+  // 社区首页可选项信息
+  rpc GetHomeOption(GetHomeOptionReq) returns (GetHomeOptionRes);
+  // 更新首页可选项信息
+  rpc PutHomeOption(PutHomeOptionReq) returns (PutHomeOptionRes);
+  // 获取社区信息
+  rpc Info(InfoReq) returns (InfoRes);
+  // 修改社区信息
+  rpc Update(UpdateReq) returns (UpdateRes);
+}
+// 获取社区首页信息请求
+message HomeReq {
+}
+
+// 获取社区首页信息响应
+message HomeRes {
+  // 团队名称
+  string name = 1;
+  // 团队描述
+  string description = 2;
+  // LOGO
+  string logo = 3;
+  // 创建时间
+  int64 ctime = 4;
+  // 访问级别
+  common.v1.CMT.ACS access = 5;
+  // 有自定义域名，才能修改，工信部备案
+  string gongxinbuBeian = 6;
+  // 公安备案
+  string gonganbuBeian = 7;
+}
+
+message GetThemeReq {
+}
+
+message GetThemeRes {
+  // 社区id
+  bool isCustom = 1;
+  // 主题名称
+  string themeName = 2;
+  // 自定义颜色
+  string customColor = 3;
+  // 默认外观名称
+  string defaultAppearance = 4;
+}
+
+message SetThemeReq {
+  // 是否自定义
+  bool isCustom = 2;
+  // 主题名称
+  string themeName = 3;
+  // 自定义颜色
+  string customColor = 4;
+  // 默认外观
+  string defaultAppearance = 5;
+}
+
+message SetThemeRes {}
+
+message GetHomeOptionReq {
+  // 操作人
+  int64 uid = 2;
+}
+
+message GetHomeOptionRes {
+  // 是否启用首页
+  bool isSetHome = 1;
+  // 是否启用banner
+  bool isSetBanner = 2;
+  // 登录用户推荐内容排序规则
+  common.v1.CMN.FILE_SORT articleSortByLogin = 3;
+  // 未登录用户推荐内容排序规则
+  common.v1.CMN.FILE_SORT articleSortByNotLogin = 4;
+  // 展示热门帖子的数量
+  int32 articleHotShowSum = 5;
+  // 展示近期多少天内创建的帖子
+  int32 articleHotShowWithLatest = 6;
+  // 启用首页banner
+  string bannerImg = 8;
+  // banner文案
+  string bannerTitle = 9;
+  // banner的跳转链接
+  string bannerLink = 10;
+  // 新用户注册默认访问页面
+  string defaultPageByNewUser = 11;
+  // 未登录用户默认访问页面
+  string defaultPageByNotLogin = 12;
+  // 登录用户默认访问页面
+  string defaultPageByLogin = 13;
+}
+
+message PutHomeOptionReq {
+  // 操作人
+  int64 uid = 2 [(validate.rules).int64.gt = 0];
+  // 是否启用首页
+  optional bool isSetHome = 3;
+  // 是否启用banner
+  optional bool isSetBanner = 4;
+  // 登录用户推荐内容排序规则
+  common.v1.CMN.FILE_SORT articleSortByLogin = 5;
+  // 未登录用户推荐内容排序规则
+  common.v1.CMN.FILE_SORT articleSortByNotLogin = 6;
+  // 展示热门帖子的数量
+  optional int32 articleHotShowSum = 7;
+  // 展示近期多少天内创建的帖子
+  optional int32 articleHotShowWithLatest = 8;
+  // 启用首页banner
+  optional string bannerImg = 10;
+  // banner文案
+  optional string bannerTitle = 11;
+  // banner的跳转链接
+  optional string bannerLink = 12;
+  // 新用户注册默认访问页面
+  optional string defaultPageByNewUser = 13;
+  // 未登录用户默认访问页面
+  optional string defaultPageByNotLogin = 14;
+  // 登录用户默认访问页面
+  optional string defaultPageByLogin = 15;
+}
+
+message PutHomeOptionRes {}
+
+message ApplyReq {
+  // 社区名称
+  string name = 1 [(validate.rules).string.min_len = 1];
+  // 创建人uid
+  int64 uid = 2 [(validate.rules).int64.gt = 0];
+  // Logo
+  string logo = 3;
+  // 团队描述
+  string description = 4;
+  // 可见级别
+  common.v1.CMN.VISBL visibility = 5;
+  // AllowInviteMember
+  int32 allowInviteMember = 6;
+}
+
+// 创建社区响应
+message ApplyRes {
+  // 社区信息
+  common.v1.CommunityInfo community = 1;
+}
+
+// 获取社区信息请求
+message InfoReq {
+  // 操作人
+  int64 uid = 2;
+}
+
+// 获取社区信息响应
+message InfoRes {
+  // 社区信息
+  common.v1.CommunityInfo community = 1;
+}
+
+// 更新社区请求
+message UpdateReq {
+  // 社区名称
+  optional string name = 2 [(validate.rules).string.min_len = 1];
+  // 操作人
+  int64 uid = 3 [(validate.rules).int64.gt = 0];
+  // 社区描述
+  optional string description = 4;
+  // LOGO
+  optional string logo = 5;
+  // 可见级别
+  optional common.v1.CMN.VISBL visibility = 6;
+  // 有自定义域名，才能修改，工信部备案
+  optional string gongxinbuBeian = 8;
+  // 公安备案
+  optional string gonganbuBeian = 9;
+}
+
+// 更新社区响应
+message UpdateRes {
+  // 社区信息
+  common.v1.CommunityInfo community = 1;
+}
+
+message CommunityBaseInfo {
+  // 社区名称
+  string name = 2;
+  // 社区描述
+  string description = 3;
+  // LOGO
+  string logo = 4;
+  // 域名
+  string domain = 5;
+  // 主题
+  CmtTheme theme = 6;
+}
+
+message CmtTheme {
+  // 是否自定义
+  bool isCustom = 1;
+  // 主题明晨
+  string themeName = 2;
+  // 自定义颜色
+  string customColor = 3;
+  // 自定义外观
+  string defaultAppearance = 4;
+}
+
+// 社区成员信息
+message CommunityMember {
+  // 成员角色
+  common.v1.CMT.ROLE role = 1;
+  // 最后活跃时间
+  int64 lastActiveTime = 2;
+}

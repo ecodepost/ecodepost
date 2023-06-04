@@ -1,0 +1,350 @@
+syntax = "proto3";
+
+package file.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum_common.proto";
+import "common/v1/enum_file.proto";
+import "common/v1/file.proto";
+import "validate/validate.proto";
+
+option go_package = "file/v1;filev1";
+
+// 文档服务
+service File {
+  // Emoji List
+  rpc EmojiList(EmojiListReq) returns (EmojiListRes);
+  // 根据文章guid和用户信息，返回他的emoji
+  rpc MyEmojiList(MyEmojiListReq) returns (MyEmojiListRes);
+  // 根据文章guid和用户信息，返回他的emoji
+  rpc MyEmojiListByFileGuids(MyEmojiListByFileGuidsReq) returns (MyEmojiListByFileGuidsRes);
+  // Emoji Create
+  rpc CreateEmoji(CreateEmojiReq) returns (CreateEmojiRes);
+  // Emoji Delete
+  rpc DeleteEmoji(DeleteEmojiReq) returns (DeleteEmojiRes);
+  // 收藏某个目标到某几个收藏夹
+  rpc CollectionCreate(CollectionCreateReq) returns (CollectionCreateRes);
+  // 从几个收藏夹取消收藏某个目标
+  rpc CollectionDelete(CollectionDeleteReq) returns (CollectionDeleteRes);
+  // 直接更新File size
+  rpc UpdateFileSize(UpdateFileSizeReq) returns (UpdateFileSizeRes);
+  // 获取文档内容的链接，前端读取文件内容渲染，有缓存，走CDN流量鉴权到OSS
+  rpc GetShowInfo(GetShowInfoReq) returns (GetShowInfoRes);
+  // 单个file的permission
+  rpc Permission(PermissionReq) returns (PermissionRes);
+  // 列表的permission
+  rpc PermissionList(PermissionListReq) returns (PermissionListRes);
+  // List文章
+  rpc ListPage(ListPageReq) returns (ListPageRes);
+  // List子文章
+  rpc ListPageByParent(ListPageByParentReq) returns (ListPageByParentRes);
+  // 文章置顶列表
+  rpc SpaceTopList(SpaceTopListReq) returns (SpaceTopListRes);
+  // 文章推荐列表
+  rpc RecommendList(RecommendListReq) returns (RecommendListRes);
+  // 打开评论
+  rpc OpenComment(OpenCommentReq) returns (OpenCommentRes);
+  // 关闭评论
+  rpc CloseComment(CloseCommentReq) returns (CloseCommentRes);
+}
+
+message ListPageReq {
+  // 用户id
+  int64 uid = 1;
+  // 空间guid
+  string spaceGuid = 3;
+  // 分页
+  common.v1.Pagination pagination = 4;
+  // 排序类型
+  common.v1.CMN.FILE_SORT sort = 5;
+}
+
+message ListPageRes {
+  // 列表
+  repeated common.v1.FileShow list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message RecommendListReq {
+  // 用户id
+  int64 uid = 1;
+  // space guid
+  string spaceGuid = 3;
+}
+
+message RecommendListRes {
+  // 列表
+  repeated common.v1.FileShow list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message SpaceTopListReq {
+  // 用户id
+  int64 uid = 1;
+  // space guid
+  string spaceGuid = 3;
+}
+
+message SpaceTopListRes {
+  // file列表
+  repeated common.v1.FileShow list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+// 创建文件请求
+message GetShowInfoReq {
+  // 用户id
+  int64 uid = 1;
+  // 文件guid
+  string guid = 3;
+}
+
+// 创建文件夹响应
+message GetShowInfoRes {
+  // 文件夹
+  common.v1.FileShow file = 1;
+}
+
+message EmojiListReq {
+  // 用户id
+  int64 uid = 1;
+  // 空间Guid
+  string spaceGuid = 3;
+}
+
+message EmojiListRes {
+  // emoji列表
+  repeated common.v1.EmojiInfo list = 1;
+}
+
+message CreateEmojiReq {
+  // 用户id
+  int64 uid = 1;
+  // 文件Guid
+  string guid = 3;
+  // 类型
+  int32 v = 4;
+}
+
+message CreateEmojiRes {}
+
+message DeleteEmojiReq {
+  // 用户id
+  int64 uid = 1;
+  // 文件Guid
+  string guid = 3;
+  // 类型
+  int32 v = 4;
+}
+
+message DeleteEmojiRes {}
+
+message MyEmojiListReq {
+  // 用户id
+  int64 uid = 1;
+  // 文件Guid
+  repeated string guids = 3;
+}
+
+message MyEmojiListRes {
+  // 结果map, key guid
+  map<string, EmojiMap> map = 1;
+}
+
+message MyEmojiListByFileGuidsReq {
+  // 用户id
+  int64 uid = 1;
+  // 文件Guid
+  repeated string guids = 2;
+}
+
+message MyEmojiListByFileGuidsRes {
+  // emoji列表
+  repeated MyEmojiInfo list = 1;
+}
+
+message MyEmojiInfo {
+  // 文章ID
+  string guid = 1;
+  // emoji列表
+  repeated common.v1.EmojiInfo list = 2;
+}
+
+message EmojiMap {
+  // 结果map
+  map<int32, common.v1.EmojiInfo> map = 1;
+}
+
+// 文章展示信息
+message ArticleShow {
+  // 文章GUID
+  string guid = 1;
+  // 文章标题
+  string name = 2;
+  // 用户uid
+  int64 uid = 3;
+  // 用户昵称
+  string nickname = 4;
+  // 用户头像
+  string avatar = 5;
+  // 简单描述
+  string summary = 6;
+  // 创建时间
+  int64 ctime = 7;
+  // 回复总数
+  int64 cntComment = 8;
+  // 查看总数
+  int64 cntView = 9;
+  // 收藏总数
+  int64 cntCollect = 10;
+  // emoji list
+  repeated common.v1.EmojiInfo list = 12;
+  // headImage
+  string headImage = 13;
+  // 空间Guid
+  string spaceGuid = 15;
+  // 是否有readMore
+  int32 isReadMore = 16;
+  // 是否允许创建评论
+  int32 isAllowCreateComment = 17;
+  // 是否已经收藏
+  int32 isCollect = 18;
+  // 业务状态
+  int32 bizStatus = 19;
+}
+
+message CollectionCreateReq {
+  // 收藏人Uid
+  int64 uid = 1;
+  // 需要添加的收藏夹ID列表
+  repeated int64 collectionGroupIds = 3;
+  // 业务Guid
+  string bizGuid = 4;
+  // 业务类型
+  common.v1.CMN.BIZ bizType = 5;
+}
+
+message CollectionCreateRes {
+  // 收藏关联表ID
+  repeated int64 ids = 1;
+  // 真正添加的数量
+  int64 delta = 2;
+}
+
+message CollectionDeleteReq {
+  // 收藏人Uid
+  int64 uid = 1;
+  // 需要从中移除的收藏夹ID列表
+  repeated int64 collectionGroupIds = 3;
+  // 业务ID
+  string bizGuid = 4;
+  // 业务类型
+  common.v1.CMN.BIZ bizType = 5;
+}
+
+message CollectionDeleteRes {
+  // 真正减少的数量
+  int64 delta = 1;
+}
+
+message PermissionReq {
+  // 收藏人Uid
+  int64 uid = 1;
+  // 文件Guid
+  string fileGuid = 3;
+}
+
+message PermissionRes {
+  // 文档GUID
+  string guid = 1;
+  // 是否可以编辑
+  bool isAllowWrite = 2;
+  // 是否可以删除
+  bool isAllowDelete = 3;
+  // 是否可以置顶
+  bool isAllowSiteTop = 4;
+  // 是否可以推荐
+  bool isAllowRecommend = 5;
+  // 是否可以打开评论或者关闭评论
+  bool isAllowSetComment = 6;
+  // 是否可以创建评论
+  bool isAllowCreateComment = 7;
+}
+
+message DriveNode {
+  // 名称
+  string name = 1;
+  // 描述
+  string desc = 2;
+  // 节点类型
+  common.v1.FILE.TYPE type = 3;
+  // 类型,TYPE_ROOT:zone,TYPE_FOLDER:folder,TYPE_FILE:file
+  common.v1.FILE.FORMAT format = 4;
+  // 节点大小
+  int64 size = 5;
+}
+
+message UpdateFileSizeReq {
+  // 空间Guid
+  string spaceGuid = 2;
+  // 文件Guid
+  string guid = 3;
+  // 需要更新的size
+  int64 size = 4;
+  // 更新uid
+  int64 uid = 5;
+}
+
+message UpdateFileSizeRes {}
+
+
+message ListPageByParentReq {
+  // 用户id
+  int64 uid = 1;
+  // 父guid
+  string parentGuid = 3;
+  // 分页
+  common.v1.Pagination pagination = 4;
+  // 排序类型
+  common.v1.CMN.FILE_SORT sort = 5;
+}
+
+message ListPageByParentRes {
+  // file列表
+  repeated common.v1.FileShow list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message PermissionListReq {
+  // 收藏人Uid
+  int64 uid = 1;
+  // 文件Guid
+  repeated string fileGuid = 3;
+}
+
+message PermissionListRes {
+  // 权限列表
+  repeated PermissionRes list = 1;
+}
+
+message CloseCommentReq {
+  // 用户id
+  int64 uid = 1;
+  // 文件id
+  string guid = 3;
+}
+
+message CloseCommentRes {}
+
+message OpenCommentReq {
+  // 用户id
+  int64 uid = 1;
+  // 文件id
+  string guid = 3;
+}
+
+message OpenCommentRes {}

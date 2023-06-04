@@ -1,0 +1,333 @@
+syntax = "proto3";
+
+package user.v1;
+
+import "common/v1/enum_audit.proto";
+import "common/v1/user.proto";
+import "validate/validate.proto";
+import "common/v1/common.proto";
+
+option go_package = "user/v1;userv1";
+
+// 用户服务
+service User {
+  // 创建用户
+  rpc Create(CreateReq) returns (CreateRes);
+  // 修改单个用户信息
+  rpc Update(UpdateReq) returns (UpdateRes);
+  // 修改手机号
+  rpc UpdatePhone(UpdatePhoneReq) returns (UpdatePhoneRes);
+  // 修改邮箱
+  rpc UpdateEmail(UpdateEmailReq) returns (UpdateEmailRes);
+  // 只有自己，才能获取用户信息
+  rpc OauthInfo(OauthInfoReq) returns (OauthInfoRes);
+  // 获取用户信息
+  rpc Info(InfoReq) returns (InfoRes);
+  // 获取用户信息
+  rpc InfoByPhone(InfoByPhoneReq) returns (InfoByPhoneRes);
+  // 获取登录信息，这里面会有密码的加密数据
+  rpc LoginInfo(LoginInfoReq) returns (LoginInfoRes);
+  // 获取登录信息，这里面会有密码的加密数据
+  rpc LoginInfoByPhone(LoginInfoByPhoneReq) returns (LoginInfoByPhoneRes);
+  // 获取登录信息，这里面会有密码的加密数据，这里需要兼容gocn。
+  rpc LoginInfoByName(LoginInfoByNameReq) returns (LoginInfoByNameRes);
+  // 个人中心信息，数据会比较多
+  rpc ProfileInfo(ProfileInfoReq) returns (ProfileInfoRes);
+  // 获取用户列表
+  rpc List(ListReq) returns (ListRes);
+  // 获取用户Map信息
+  rpc Map(MapReq) returns (MapRes);
+  // 获取用户列表
+  rpc ListPage(ListPageReq) returns (ListPageRes);
+  // 第三方 Open 登录LoginUserOpen
+  rpc LoginUserOpen(LoginUserOpenReq) returns (LoginUserOpenRes);
+  // 搜索
+  rpc Search(SearchReq) returns (SearchRes);
+}
+
+message ListPageReq {
+  // UID
+  optional int64 uid = 1;
+  // 昵称
+  optional string nickname = 2;
+  // 手机号
+  optional string phone = 3;
+  // 分页
+  common.v1.Pagination pagination = 4;
+}
+
+message ListPageRes {
+  // 日志列表
+  repeated common.v1.UserBaseInfo  list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message CreateReq {
+  // 密码 微信登录可以没有密码
+  optional string password = 1;
+  // 电话
+  string phone = 2 [(validate.rules).string.min_len = 1];
+  // 注册IP
+  string registerIp = 3 [(validate.rules).string.min_len = 1];
+  // 名称，全局唯一
+  string name = 4;
+  // 微信unionId, 不为空，则关联user_open表
+  string wechatUnionId = 5;
+}
+
+message CreateRes {
+  // 用户UID
+  int64 uid = 1;
+}
+
+message UpdateReq {
+  // 需要修改的uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 需要修改的password，如不需修改，可以不赋值
+  optional string password = 2;
+  // 需要修改的nickname，如不需修改，可以不赋值
+  optional string nickname = 3;
+  // 需要修改的avatar，如不需修改，可以不赋值
+  optional string avatar = 4;
+  // 需要修改的lastLoginIp，如不需修改，可以不赋值
+  optional string lastLoginIp = 5;
+  // 需要修改的lastLoginTime，如不需修改，可以不赋值
+  optional int64 lastLoginTime = 6;
+  // 需要修改的name，如不需修改，可以不赋值
+  optional string name = 7;
+  // 需要修改的职位，如不需修改，可以不赋值
+  optional string position = 8;
+  // 需要修改的生日，如不需修改，可以不赋值
+  optional int64 birthday = 9;
+  // 需要修改的职位，如不需修改，可以不赋值
+  optional int32 sex = 10;
+  // 需要修改的个人简简介，如不需修改，可以不赋值
+  optional string intro = 11;
+}
+
+message UpdateRes {}
+
+message UpdatePhoneReq {
+  // 需要修改的uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 需要修改的电话
+  string phone = 2 [(validate.rules).string.min_len = 1];
+}
+
+message UpdatePhoneRes {}
+
+message UpdateEmailReq {
+  // 需要修改的uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 需要修改的邮箱
+  string email = 2 [(validate.rules).string.min_len = 1];
+}
+
+message UpdateEmailRes {}
+
+message ListReq {
+  // 我方uid
+  repeated int64 uidList = 1 [(validate.rules).repeated.min_items = 1];
+}
+
+message ListRes {
+  // 查询出的用户列表
+  repeated UserInfo userList = 1;
+}
+
+message MapReq {
+  // 请求查询的uid列表
+  repeated int64 uidList = 1 [(validate.rules).repeated.min_items = 1];
+}
+
+message MapRes {
+  // 查询出的用户map
+  map<int64, UserInfo> userMap = 2;
+}
+
+message InfoByPhoneReq {
+  // 用户电话
+  string phone = 1 [(validate.rules).string.min_len = 1];
+}
+
+message LoginInfoReq {
+  // 用户UID
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+}
+
+message LoginInfoByPhoneReq {
+  // 用户电话
+  string phone = 1 [(validate.rules).string.min_len = 1];
+}
+
+message LoginInfoRes {
+  // 用户UID
+  int64 uid = 1;
+  // 用户密码
+  string password = 2;
+  // 用户昵称
+  string nickname = 3;
+  // 用户头像
+  string avatar = 4;
+  // 用户名称
+  string name = 5;
+  // gocn password
+  string gocnPassword = 6;
+}
+
+message LoginInfoByPhoneRes {
+  // 用户详情
+  UserInfo user = 1;
+}
+
+message LoginInfoByNameReq {
+  // 用户名称
+  string name = 1 [(validate.rules).string.min_len = 1];
+}
+
+message LoginInfoByNameRes {
+  // 用户详情
+  UserInfo user = 1;
+}
+
+message InfoReq {
+  // 用户UID, 注：uid和name不能同时为空
+  int64 uid = 1;
+  // 用户name全局唯一, 注：uid和name不能同时为空
+  string name = 2;
+}
+
+message UserInfo {
+  // 昵称
+  string nickname = 1;
+  // 邮箱
+  string email = 2;
+  // 头像
+  string avatar = 3;
+  // 用户UID
+  int64 uid = 4;
+  // identity
+  int32 identify = 5;
+  // 用户名称
+  string name = 6;
+  // 职位
+  string position = 7;
+  // 最后激活时间
+  int64 activeTime = 8;
+  // 密码（根据条件返回）
+  string password = 9;
+  // 状态
+  int32 status = 10;
+  // gocn password
+  string gocnPassword = 11;
+}
+
+message InfoRes {
+  // 用户详情
+  UserInfo user = 1;
+}
+
+message InfoByPhoneRes {
+  // 用户详情
+  UserInfo user = 1;
+}
+
+message OauthInfoReq {
+  // 用户UID, 注：uid和name不能同时为空
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+}
+
+message OauthInfoRes {
+  // 昵称
+  string nickname = 1;
+  // 邮箱
+  string email = 2;
+  // 头像
+  string avatar = 3;
+  // identity
+  int32 identify = 4;
+  // 用户名称
+  string name = 5;
+  // 有资格创建社区的审核状态
+  common.v1.AUDIT.STATUS cmtIdentifyStatus = 6;
+  // 最大重试次数
+  int64 applyMaxCmtCnt = 7;
+}
+
+message ProfileInfoReq {
+  // 用户UID, 注：uid和name不能同时为空
+  int64 uid = 1;
+  // 用户name全局唯一, 注：uid和name不能同时为空
+  string name = 2;
+}
+
+message ProfileInfoRes {
+  // 用户UID
+  int64 uid = 1;
+  // 用户昵称
+  string nickname = 2;
+  // 用户邮箱
+  string email = 3;
+  // 用户头像
+  string avatar = 4;
+  // identifyStatus
+  int32 identifyStatus = 5;
+  // 介绍
+  string intro = 6;
+  // 性别
+  int32 sex = 7;
+  // 生日
+  int64 birthday = 8;
+  // 用户名称
+  string name = 9;
+  // 注册时间
+  int64 registerTime = 10;
+}
+
+message LoginUserOpenReq {
+  // 类型
+  int32 genre = 1;
+  // OpenId
+  string openId = 2;
+  // unionId
+  string unionId = 3;
+  // 昵称
+  string nickname = 4;
+  // 头像
+  string avatar = 5;
+  // 性别
+  int32 sex = 6;
+  // 国家
+  string country = 7;
+  // 省份
+  string province = 8;
+  // 城市
+  string city = 9;
+  // 电话
+  string telephone = 10;
+}
+
+message LoginUserOpenRes {
+  // code
+  int32 code = 1;
+  // 用户id
+  int64 uid = 2;
+  // 用户昵称
+  string nickname = 3;
+  // 头像
+  string avatar = 4;
+  // 电话
+  string phone = 5;
+}
+
+message SearchReq {
+  // 昵称%
+  string nickname = 1;
+}
+
+
+message SearchRes {
+  repeated common.v1.UserBaseInfo list = 1;
+}
+

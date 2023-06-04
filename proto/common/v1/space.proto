@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package common.v1;
+
+import "common/v1/enum_common.proto";
+import "common/v1/enum_file.proto";
+import "common/v1/enum_space.proto";
+
+option go_package = "common/v1;commonv1";
+
+message SpaceOption {
+  // 名称
+  string name = 1;
+  // 可选项
+  common.v1.SPC.OPTION spaceOptionId = 2;
+  // 可选项值
+  int64 value = 3;
+  // 可选项类型
+  common.v1.SPC.OPTION_TYPE spaceOptionType = 4;
+}
+
+// SpaceInfo
+message SpaceInfo {
+  // GUID
+  string guid = 1;
+  // 名称
+  string name = 2;
+
+  // Icon Type
+  common.v1.FILE.IT iconType = 4;
+  // Icon
+  string icon = 5;
+  // 空间类型
+  common.v1.CMN.APP spaceType = 6;
+  // 空间布局
+  common.v1.SPC.LAYOUT spaceLayout = 7;
+  // 可见级别
+  common.v1.CMN.VISBL visibility = 8;
+  // 成员个数
+  int64 memberCnt = 9;
+  // 空间分组guid
+  string spaceGroupGuid = 10;
+  // 是否允许成员可以查看成员列表
+  // bool isAllowReadMemberList = 10;
+  // spaceOptions
+  repeated SpaceOption spaceOptions = 11;
+  // 收费类型
+  common.v1.SPC.CT chargeType = 12;
+  // 原始价格
+  int64 originPrice = 13;
+  // 当前价格
+  int64 price = 14;
+  // 空间简介或描述
+  string desc = 15;
+  // 空间头图
+  string headImage = 16;
+  // 空间封面
+  string cover = 17;
+  // 是否允许有设置按钮
+  bool isAllowSet = 18;
+  // 访问设置
+  common.v1.SPC.ACS access = 20;
+  // 序号
+  int64 sort = 21;
+  // link信息
+  string link = 22;
+}

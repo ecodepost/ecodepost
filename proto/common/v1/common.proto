@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "common/v1;commonv1";
+
+message Pagination {
+  // 总数
+  int64 total = 1;
+  // 当前页数
+  int32 currentPage = 2;
+  // 每页总数
+  int32 pageSize = 3;
+  // 排序字符串
+  string sort = 4;
+}

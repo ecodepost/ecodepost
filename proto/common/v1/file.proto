@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package common.v1;
+
+import "common/v1/enum_file.proto";
+
+option go_package = "common/v1;commonv1";
+
+// 文件信息
+message FileInfo {
+  // 文件节点ID
+  int64 id = 1;
+  // GUID
+  string guid = 2;
+  // 名称
+  string name = 3;
+
+  // 文件大小
+  int64 size = 5;
+  // 内容key
+  string contentKey = 6;
+  // 创建时间
+  int64 ctime = 7;
+  // 更新时间
+  int64 utime = 8;
+  // 创建人用户ID
+  int64 createdUid = 9;
+  // 更新人用户ID
+  int64 updatedUid = 10;
+  // 文件类型
+  common.v1.FILE.TYPE type = 12;
+  // 文件格式
+  common.v1.FILE.FORMAT format = 13;
+  // 文件状态
+  common.v1.FILE.STATUS status = 14;
+  // 回复总数
+  int64 cntComment = 15;
+  // 查看总数
+  int32 cntView = 16;
+  // 收藏总数
+  int32 cntCollect = 17;
+  // head image
+  string headImage = 18;
+  // 是否允许创建评论
+  int32 isAllowCreateComment = 19;
+  // emoji info
+  repeated EmojiInfo list = 20;
+  // 节点类型
+  common.v1.FILE.NODE node = 21;
+  // 父节点guid
+  string parentGuid = 22;
+  // 内容url
+  string contentUrl = 23;
+  // 业务状态
+  common.v1.FILE.BIZSTS bizStatus = 24;
+  // 排序号
+  int64 sort = 25;
+  // ip定位的地址, 暂时精确到省
+  string ipLocation = 26;
+}
+
+message EmojiInfo {
+  // ID
+  int32 id = 1;
+  // 表情编码
+  string emoji = 2;
+  // 计数
+  int32 cnt = 3;
+}
+
+// 前端上传所需配置
+message UploadConf {
+  // 取悦
+  string region = 1;
+  // akID
+  string accessKeyId = 2;
+  // akSecret
+  string accessKeySecret = 3;
+  // stsToken
+  string stsToken = 4;
+  // bucket
+  string bucket = 5;
+  // cdn 名称
+  string cdnName = 6;
+  // 过期时间(秒)
+  string expiration = 7;
+}
+
+// 文章展示信息
+message FileShow {
+  // 文章GUID
+  string guid = 1;
+  // 文章标题
+  string name = 2;
+  // 用户uid
+  int64 uid = 3;
+  // 用户名
+  string username = 4;
+  // 用户昵称
+  string nickname = 5;
+  // 用户头像
+  string avatar = 6;
+  // 创建时间
+  int64 ctime = 7;
+  // 回复总数
+  int64 cntComment = 8;
+  // 查看总数
+  int64 cntView = 9;
+  // 收藏总数
+  int64 cntCollect = 10;
+  // headImage
+  string headImage = 11;
+
+  // 空间Guid
+  string spaceGuid = 13;
+  // 是否允许创建评论
+  int32 isAllowCreateComment = 14;
+  // 是否置顶
+  int32 isSiteTop = 15;
+  // 是否推荐
+  int32 isRecommend = 16;
+  // 文档格式
+  common.v1.FILE.FORMAT format = 17;
+  // emoji list 文章的数据个数
+  repeated common.v1.EmojiInfo emojiList = 18;
+  // 为了速度快，不得不搞这个content，如果是列表就有他，如果不是列表就没他
+  string content = 19;
+  // ip定位的地址, 暂时精确到省
+  string ipLocation = 20;
+}

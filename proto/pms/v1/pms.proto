@@ -1,0 +1,320 @@
+syntax = "proto3";
+
+package pms.v1;
+
+import "common/v1/enum_common.proto";
+import "common/v1/enum_pms.proto";
+import "common/v1/pms.proto";
+import "validate/validate.proto";
+
+option go_package = "pms/v1;pmsv1";
+
+// 资源服务
+service Pms {
+  // 添加管理员的成员
+  rpc CreateManagerMember(CreateManagerMemberReq) returns (CreateManagerMemberRes);
+  // 删除管理员的成员
+  rpc DeleteManagerMember(DeleteManagerMemberReq) returns (DeleteManagerMemberRes);
+  // 获取某个用户的role list
+  rpc GetRoleList(GetRoleListReq) returns (GetRoleListRes);
+  // 获取某个用户的role ids
+  rpc GetRoleIds(GetRoleIdsReq) returns (GetRoleIdsRes);
+  // 创建角色
+  rpc CreateRole(CreateRoleReq) returns (CreateRoleRes);
+  // 更新角色
+  rpc UpdateRole(UpdateRoleReq) returns (UpdateRoleRes);
+  // 删除角色
+  rpc DeleteRole(DeleteRoleReq) returns (DeleteRoleRes);
+  // 获取角色成员列表
+  rpc GetRoleMemberList(GetRoleMemberListReq) returns (GetRoleMemberListRes);
+  // 获取角色的权限
+  rpc GetRolePermission(GetRolePermissionReq) returns (GetRolePermissionRes);
+  // 获取某种类型的初始权限列表
+  rpc GetInitActionOptionPermission(GetInitActionOptionPermissionReq) returns (GetInitActionOptionPermissionRes);
+  // 为成员赋予角色
+  rpc CreateRoleMember(CreateRoleMemberReq) returns (CreateRoleMemberRes);
+  // 为成员删除角色
+  rpc DeleteRoleMember(DeleteRoleMemberReq) returns (DeleteRoleMemberRes);
+  // 设置一个role的权限
+  rpc PutRolePermission(PutRolePermissionReq) returns (PutRolePermissionRes);
+  // 设置一个role space的权限
+  rpc PutRoleSpaceGroupPermission(PutRoleSpaceGroupPermissionReq) returns (PutRoleSpaceGroupPermissionRes);
+  // 设置一个role space的权限
+  rpc PutRoleSpacePermission(PutRoleSpacePermissionReq) returns (PutRoleSpacePermissionRes);
+  // 校验是否有权限
+  rpc Check(CheckReq) returns (CheckRes);
+  // 统计信息
+  rpc TotalInfo(TotalInfoReq) returns (TotalInfoRes);
+  // 社区
+  rpc CommunityPermission(CommunityPermissionReq) returns (CommunityPermissionRes);
+  // 超级会员
+  rpc GetManagerMemberList(GetManagerMemberListReq) returns (GetManagerMemberListRes);
+}
+
+message GetManagerMemberListReq {
+  // 操作人Uid
+  int64 operateUid = 2;
+}
+
+message GetManagerMemberListRes {
+  // 成员列表
+  repeated MemberInfo list = 1;
+}
+
+message MemberInfo {
+  // 用户Uid
+  int64 uid = 1;
+  // 用户名
+  string name = 2;
+  // 用户昵称
+  string nickname = 3;
+  // 用户头像
+  string avatar = 4;
+  // 创建时间
+  int64 ctime = 5;
+  // MANAGER
+  common.v1.PMS.MANAGER pmsManagerType = 6;
+  // 职位
+  string position = 7;
+  // 激活时间
+  string activeTime = 8;
+}
+
+message CreateManagerMemberReq {
+  // 操作人Uid
+  int64 operateUid = 2 [(validate.rules).int64.gt = 0];
+  // 用户Uid列表
+  repeated int64 uids = 3 [(validate.rules).repeated.min_items = 1];
+}
+
+message CreateManagerMemberRes {}
+
+message DeleteManagerMemberReq {
+  // 操作人Uid
+  int64 operateUid = 2 [(validate.rules).int64.gt = 0];
+  // 用户Uid
+  int64 uid = 3 [(validate.rules).int64.gt = 0];
+}
+
+message DeleteManagerMemberRes {}
+
+message GetRoleListReq {
+  // 操作人Uid
+  int64 operateUid = 2;
+}
+
+message GetRoleListRes {
+  // 角色列表
+  repeated RoleInfo list = 1;
+}
+
+message GetRoleIdsReq {
+  // 用户Uid
+  int64 uid = 2 [(validate.rules).int64.gt = 0];
+}
+
+message GetRoleIdsRes {
+  // 角色id列表
+  repeated int64 roleIds = 1;
+}
+
+message CreateRoleReq {
+  // 操作人Uid
+  int64 operateUid = 2 [(validate.rules).int64.gt = 0];
+  // 名称
+  string name = 3 [(validate.rules).string.min_len = 1];
+}
+
+message CreateRoleRes {
+  // 角色id
+  int64 roleId = 1;
+  // 名称
+  string name = 2;
+}
+
+message UpdateRoleReq {
+  // 操作人Uid
+  int64 operateUid = 2 [(validate.rules).int64.gt = 0];
+  // 角色id
+  int64 roleId = 3;
+  // 名称
+  string name = 4;
+}
+
+message UpdateRoleRes {}
+
+message DeleteRoleReq {
+  // 操作人Uid
+  int64 operateUid = 2 [(validate.rules).int64.gt = 0];
+  // 角色id
+  int64 roleId = 3 [(validate.rules).int64.gt = 0];
+}
+
+message DeleteRoleRes {}
+
+message GetRoleMemberListReq {
+  // 操作人Uid
+  int64 operateUid = 2;
+  // 角色id
+  int64 roleId = 3 [(validate.rules).int64.gt = 0];
+}
+
+message GetRoleMemberListRes {
+  // 成员列表
+  repeated MemberInfo list = 1;
+}
+
+message RoleInfo {
+  // 角色id
+  int64 id = 1;
+  // 名称
+  string name = 2;
+}
+
+message CreateRoleMemberReq {
+  // 操作人Uid
+  int64 operateUid = 2 [(validate.rules).int64.gt = 0];
+  // 用户Uid列表
+  repeated int64 uids = 3 [(validate.rules).repeated.min_items = 1];
+  // 角色id
+  int64 roleId = 4;
+}
+
+message CreateRoleMemberRes {}
+
+message DeleteRoleMemberReq {
+  // 操作人Uid
+  int64 operateUid = 2 [(validate.rules).int64.gt = 0];
+  // 用户Uid列表
+  repeated int64 uids = 3;
+  // 角色id
+  int64 roleId = 4;
+}
+
+message DeleteRoleMemberRes {}
+
+message GetRolePermissionReq {
+  // 操作人Uid
+  int64 operateUid = 2 [(validate.rules).int64.gt = 0];
+  // 角色id
+  int64 roleId = 3 [(validate.rules).int64.gt = 0];
+}
+
+message GetRolePermissionRes {
+  // 自身的一些权限点
+  repeated common.v1.PmsItem list = 1;
+  // 所选择的space guid列表
+  repeated SpacePmsItem spaceList = 2;
+  // space group里面的权限列表
+  repeated SpaceGroupPmsItem spaceGroupList = 3;
+}
+
+message GetInitActionOptionPermissionReq {
+  // 操作人Uid
+  int64 operateUid = 2;
+  // guid
+  string guid = 3;
+  // type
+  common.v1.CMN.GUID type = 4;
+}
+
+message GetInitActionOptionPermissionRes {
+  // 权限列表
+  repeated common.v1.PmsItem list = 1;
+}
+
+message PutRolePermissionReq {
+  // 操作人Uid
+  int64 operateUid = 2 [(validate.rules).int64.gt = 0];
+  // 角色id
+  int64 roleId = 3 [(validate.rules).int64.gt = 0];
+  // 自身的一些权限点
+  repeated common.v1.PmsItem list = 4;
+}
+
+message PutRoleSpaceGroupPermissionReq {
+  // 操作人Uid
+  int64 operateUid = 2 [(validate.rules).int64.gt = 0];
+  // 角色id
+  int64 roleId = 3 [(validate.rules).int64.gt = 0];
+  // space group里面的权限列表
+  repeated SpaceGroupPmsItem list = 4;
+}
+
+message PutRoleSpacePermissionReq {
+  // 操作人Uid
+  int64 operateUid = 2 [(validate.rules).int64.gt = 0];
+  // 角色id
+  int64 roleId = 3 [(validate.rules).int64.gt = 0];
+  // space group里面的权限列表
+  repeated SpacePmsItem list = 4;
+}
+
+message SpacePmsItem {
+  // guid 信息
+  string guid = 1;
+  // 名称
+  // 名称
+  string name = 2;
+  // space里面的权限列表
+  repeated common.v1.PmsItem list = 3;
+}
+
+message SpaceGroupPmsItem {
+  // guid 信息
+  string guid = 1;
+  // 名称
+  // 名称
+  string name = 2;
+  // space group 里面的权限列表
+  repeated common.v1.PmsItem list = 3;
+}
+
+message PutRolePermissionRes {}
+
+message PutRoleSpaceGroupPermissionRes {}
+
+message PutRoleSpacePermissionRes {}
+
+message CheckReq {
+  // 用户Uid
+  int64 uid = 2 [(validate.rules).int64.gt = 0];
+  // actionName
+  common.v1.PMS.ACT actionName = 3;
+  // guid
+  string guid = 4 [(validate.rules).string.min_len = 1];
+}
+
+message CheckRes {
+  // flag
+  bool flag = 1;
+}
+
+message TotalInfoReq {
+  // 用户Uid
+  int64 uid = 1;
+}
+
+// 统计信息
+message TotalInfoRes {
+  // 超级管理员个数
+  int64 superAdminCnt = 1;
+  // 角色用户个数
+  int64 roleMemberCnt = 2;
+}
+
+message CommunityPermissionReq {
+  // 用户Uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+}
+
+message CommunityPermissionRes {
+  // 是否允许管理社区
+  bool isAllowManageCommunity = 1;
+  // 是否允许创建空间群组
+  bool isAllowCreateSpaceGroup = 2;
+  // 是否允许创建空间
+  bool isAllowCreateSpace = 3;
+  // 是否允许升级社区版本
+  bool isAllowUpgradeEdition = 4;
+}

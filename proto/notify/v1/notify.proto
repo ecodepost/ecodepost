@@ -1,0 +1,173 @@
+syntax = "proto3";
+
+package notify.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum_notify.proto";
+import "validate/validate.proto";
+
+option go_package = "notify/v1;notifyv1";
+
+// 站内通知服务
+service Notify {
+  // 发送消息
+  rpc SendMsg(SendMsgReq) returns (SendMsgRes);
+  // 更改用户通知消息状态
+  rpc UpdateReadStatus(UpdateReadStatusReq) returns (UpdateReadStatusRes);
+  // 更改用户全部通知消息状态
+  rpc ChangeUserAllNotificationStatus(ChangeUserAllNotificationStatusReq) returns (ChangeUserAllNotificationStatusRes);
+  // 查询用户未查看的通知数量
+  rpc GetUnViewCount(GetUnViewCountReq) returns (GetUnViewCountRes);
+  // 查询用户下的通知列表
+  rpc ListUserNotification(ListUserNotificationReq) returns (ListUserNotificationRes);
+}
+
+
+// SendMsgReq发送消息请求结构
+message SendMsgReq {
+  // 消息模板id
+  int64 tplId = 1 [(validate.rules).int64.gt = 0];
+  // 消息列表
+  repeated Msg msgs = 2 [(validate.rules).repeated.min_items = 1];
+  // 额外参数, 站内信, 需配合模板使用
+  Letter varLetter = 3;
+  // 额外参数, 短信, 需配合模板使用
+  Sms varSms = 4;
+  // 额外参数, 邮件, 需配合模板使用
+  Email varEmail = 5;
+}
+
+
+// 消息定义
+message Msg {
+  // 消息接收者
+  string receiver = 1;
+  // 备注
+  string extraContent = 2;
+  // 业务层扩展extraId
+  string extraId = 3;
+  // 运营商发送消息时需要的动态变量
+  map<string, string> vars = 4;
+  // 模板数据，使用JSON反序列化，存储模板使用的变量，该数据被用于通过Go Html Template渲染最终发送内容
+  bytes tplData = 5;
+  // 消息发送者, uid/topicGuid/空间guid/社区guid等
+  string sender = 6;
+}
+
+
+message Letter {
+  // 消息类型
+  common.v1.NTF.TYPE type = 1;
+  // 对象ID
+  string targetId = 2;
+  // 链接
+  string link = 4;
+  // 附属数据
+  bytes meta = 5;
+}
+
+message Sms {}
+
+message Email {
+  // toName
+  string toName = 1;
+  // 主题
+  string subject = 2;
+  // 抄送
+  repeated string cc = 3;
+
+}
+
+// 用户通知
+message UserNotification {
+  // 用户ID
+  int64 uid = 1;
+  // 通知ID
+  int64 notificationId = 2;
+}
+
+// 变更用户通知消息状态请求
+message UpdateReadStatusReq {
+  // 用户ID
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 通知ID
+  int64 notificationId = 2 [(validate.rules).int64.gt = 0];
+}
+
+message UpdateReadStatusRes {}
+
+message GetUnViewCountReq {
+  // 用户ID
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+}
+
+message GetUnViewCountRes {
+  // 未查看的通知数量
+  int64 count = 2;
+}
+
+message ListUserNotificationReq {
+  // 用户ID
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 类型, 为空表示不先定查询类型
+  repeated common.v1.NTF.TYPE types = 2;
+  // 页码
+  common.v1.Pagination pagination = 3;
+}
+
+message ListUserNotificationRes {
+  // 当前列表数据
+  repeated ListUserNotificationItem list = 1;
+  // 总数量
+  common.v1.Pagination pagination = 2;
+}
+
+message ListUserNotificationItem {
+  // 消息类型
+  common.v1.NTF.TYPE type = 1;
+  // 对象ID
+  string targetId = 2;
+  // 消息外链
+  string link = 3;
+  // 附属数据
+  bytes meta = 4;
+  // 消息状态
+  common.v1.NTF.STATUS status = 5;
+  // 通知ID
+  int64 notificationId = 6;
+  // 通知时间
+  int64 notificationTime = 7;
+  // 发送者Id, 设置成string方便后续扩展, 目前可以全部当成uid来处理
+  string senderId = 8;
+  // 唯一id
+  int64 id = 9;
+}
+
+// 请求信息
+message ChangeUserAllNotificationStatusReq {
+  // 用户ID
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 消息状态
+  common.v1.NTF.STATUS status = 2;
+}
+
+// 响应信息
+message ChangeUserAllNotificationStatusRes {}
+
+
+// SendMsgResponse发送消息响应结构
+message SendMsgRes {
+  // 消息结果
+  repeated MsgResult msgResults = 1;
+}
+
+message MsgResult {
+  // 消息返回码 0 - 成功，非0 - 失败
+  int32 code = 1;
+  // 业务层扩展extra_id
+  string extraId = 2;
+  // 消息结果id
+  string msgId = 3;
+  // 消息结果原因
+  string reason = 4;
+}

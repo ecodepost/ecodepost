@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "common/v1;commonv1";
+
+// [enum 缩写原则]:
+//   1. 超过4个字母后可以考虑缩写。
+//   2. 省略元音与重复的字母，比如: TarGeT->TGT; NoTiFy -> NTF; STaTuS -> STS;
+//   3. 多个单词组成，可以直接使用首字母，比如 UserAgent -> UA; UserAuthStatus -> UAS;
+//   4. 一定要加上完整英文注释说明，比如 UA 上一行，必须注释『// UA:UserAgent 用户代理』
+
+// TRACK:大数据打点相关枚举值
+message LOG {
+  // LOG_EVENT:LogEvent
+  enum EVENT {
+    // 未知类型
+    EVENT_INVALID = 0;
+    // 创建空间
+    EVENT_SPACE_CREATE = 1;
+    // 更新空间
+    EVENT_SPACE_UPDATE = 2;
+    // 删除空间
+    EVENT_SPACE_DELETE = 3;
+    // 调整空间顺序
+    EVENT_SPACE_CHANGE_SORT = 4;
+    // 创建空间分组
+    EVENT_SPACE_GROUP_CREATE = 5;
+    // 更新空间分组
+    EVENT_SPACE_GROUP_UPDATE = 6;
+    // 删除空间分组顺序
+    EVENT_SPACE_GROUP_DELETE = 7;
+    // 删除空间分组顺序
+    EVENT_SPACE_GROUP_CHANGE_SORT = 8;
+    // 创建权限
+    EVENT_PMS_SUPER_ADMIN_CREATE_MEMBER = 9;
+    // 删除权限
+    EVENT_PMS_SUPER_ADMIN_DELETE_MEMBER = 10;
+    // 创建权限
+    EVENT_PMS_ROLE_CREATE = 11;
+    // 更新权限
+    EVENT_PMS_ROLE_UPDATE = 12;
+    // 删除权限
+    EVENT_PMS_ROLE_DELETE = 13;
+    // 创建权限
+    EVENT_PMS_ROLE_CREATE_MEMBER = 14;
+    // 删除权限
+    EVENT_PMS_ROLE_DELETE_MEMBER = 15;
+  }
+  // LOG_EVENT:LogEvent
+  enum GROUP {
+    // 未知类型
+    GROUP_INVALID = 0;
+    // 空间
+    GROUP_SPACE = 1;
+    // 空间分组
+    GROUP_SPACE_GROUP = 2;
+    // 权限类型
+    GROUP_PMS = 3;
+    // 文件
+    GROUP_FILE = 4;
+  }
+}

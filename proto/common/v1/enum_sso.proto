@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "common/v1;commonv1";
+
+message SSO {
+  // 登录的平台
+  enum Platform {
+    // 未知平台
+    PLATFORM_INVALID = 0;
+    // WEB 端登录
+    PLATFORM_WEB = 1;
+    // PC客户端
+    PLATFORM_PC = 2;
+    // Android
+    PLATFORM_ANDROID = 3;
+    // IOS
+    PLATFORM_IOS = 4;
+  }
+}

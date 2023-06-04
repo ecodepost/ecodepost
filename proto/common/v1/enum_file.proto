@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "common/v1;commonv1";
+
+// [enum 缩写原则]:
+//   1. 超过4个字母后可以考虑缩写。
+//   2. 省略元音与重复的字母，比如: TarGeT->TGT; NoTiFy -> NTF; STaTuS -> STS;
+//   3. 多个单词组成，可以直接使用首字母，比如 UserAgent -> UA; UserAuthStatus -> UAS;
+//   4. 一定要加上完整英文注释说明，比如 UA 上一行，必须注释『// UA:UserAgent 用户代理』
+
+// FILE:File 文件相关枚举值
+message FILE {
+  // 文件状态
+  enum STATUS {
+    // 不正常状态
+    STATUS_INVALID = 0;
+    // 创建成功
+    STATUS_SUCC = 1;
+    // 创建失败状态
+    STATUS_FAIL = 2;
+    // 上传成功
+    STATUS_UPLOADED_SUCC = 5;
+    // 上传失败
+    STATUS_UPLOADED_FAIL = 6;
+  }
+  // 业务状态
+  enum BIZSTS {
+    // 不正常状态
+    BIZSTS_INVALID = 0;
+    // 草稿
+    BIZSTS_COURSE_DRAFT = 1;
+    // 发布
+    BIZSTS_COURSE_PUBLISHED = 2;
+  }
+  // 文件类型
+  enum TYPE {
+    // 未知类型
+    TYPE_INVALID = 0;
+    // 文档
+    TYPE_DOCUMENT = 1;
+    // 问题或回答
+    TYPE_QUESTION = 2;
+    // 其他任意文件, ppt, pdf, video, mp3 等任意文件
+    TYPE_FILE = 5;
+    // 栏目
+    TYPE_COLUMN = 9;
+  }
+  // 文件节点类型
+  enum NODE {
+    // 位置节点类型
+    NODE_INVALID = 0;
+    // 根节点类型
+    NODE_ROOT = 1;
+    // 中间节点类型
+    NODE_INNER = 2;
+    // 叶子节点类型
+    NODE_LEAF = 3;
+  }
+  // 文件格式
+  enum FORMAT {
+    // 未知类型
+    FORMAT_INVALID = 0;
+    // 文档-富文本
+    FORMAT_DOCUMENT_RICH = 1;
+    // 文档-JSON-QUIL
+    //    FORMAT_DOCUMENT_JSON = 2;
+    // 文档-JSON-SLATE
+    FORMAT_DOCUMENT_SLATE = 3;
+  }
+  // IT:IconType 文件图标类型
+  enum IT {
+    // Invalid
+    IT_INVALID = 0;
+    // Default
+    IT_DEFAULT = 1;
+    // Emoji
+    IT_EMOJI = 2;
+    // Img
+    IT_IMG = 3;
+  }
+  // ACT:Action文章行为
+  enum ACT {
+    // 无效枚举值
+    ACT_INVALID = 0;
+    // 评论
+    ACT_COMMENT = 1;
+    // 置顶
+    ACT_SITE_TOP = 2;
+    // 加精
+    ACT_EXCELLENT = 3;
+    // 提及
+    ACT_MENTION = 4;
+  }
+  // CMET_DEL:CommentDelete 评论删除类型
+  enum CMET_DEL {
+    // 无效枚举值
+    CMET_DEL_INVALID = 0;
+    // 删除用户评论
+    CMET_DEL_USER = 1;
+    // 删除topic的excellent
+    CMET_DEL_EXCELLENT = 2;
+  }
+}

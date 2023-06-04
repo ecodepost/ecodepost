@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "common/v1;commonv1";
+
+// [enum 缩写原则]:
+//   1. 超过4个字母后可以考虑缩写。
+//   2. 省略元音与重复的字母，比如: TarGeT->TGT; NoTiFy -> NTF; STaTuS -> STS;
+//   3. 多个单词组成，可以直接使用首字母，比如 UserAgent -> UA; UserAuthStatus -> UAS;
+//   4. 一定要加上完整英文注释说明，比如 UA 上一行，必须注释『// UA:UserAgent 用户代理』
+
+// CNT:Count 计数服务相关枚举值
+message CNT {
+  // Action 动作，分成多种
+  // - 二值(0或1)状态型计数(COLLECT|LIKE|UNLIKE|WATCH): 比如收藏状态、用户对同一只能进行内容收藏和取消收藏
+  // - 多值(0+)重复状态型计数(VIEW|CNT): 比如评论总数、用户可以评论多次，支持累加计数、删除评论时也能减少对应计数
+  // - 周期型计数(暂无): 比如要计算某一个纬度某一个周期内的计数值
+  enum ACT {
+    // 无效枚举值
+    ACT_INVALID = 0;
+    // 收藏/取消收藏
+    ACT_COLLECT = 1;
+    // 点赞/取消点赞
+    ACT_LIKE = 2;
+    // 点踩/取消点踩
+    ACT_DISLIKE = 3;
+    // 浏览/更新浏览
+    ACT_VIEW = 4;
+    // 关注/取消关注
+    ACT_FOLLOW = 5;
+    // 总数/更新总数
+    ACT_CNT = 6;
+  }
+  // ActInstruction 动作指令
+  enum ACTI {
+    // 无效枚举值
+    ACTI_INVALID = 0;
+    // 添加计数值, ACT=ADD则计数增加1
+    ACTI_ADD = 1;
+    // 减少计数值, ACT=SUB则减少1
+    ACTI_SUB = 2;
+    // 直接更新计数值(适合伪造计数值的场景), ACT=UPDATE时, 计数器增加或减少val
+    ACTI_UPDATE = 3;
+    // 重置用户所有关系, ACT=RESET时，将num重置为0, 慎用(会清空用户所有的操作记录)
+    ACTI_RESET = 4;
+  }
+}

@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "common/v1;commonv1";
+
+// [enum 缩写原则]:
+//   1. 超过4个字母后可以考虑缩写。
+//   2. 省略元音与重复的字母，比如: TarGeT->TGT; NoTiFy -> NTF; STaTuS -> STS;
+//   3. 多个单词组成，可以直接使用首字母，比如 UserAgent -> UA; UserAuthStatus -> UAS;
+//   4. 一定要加上完整英文注释说明，比如 UA 上一行，必须注释『// UA:UserAgent 用户代理』
+
+// NOTIFY:NOTIFY 相关枚举值
+message NOTIFY {
+  // CHANNEL:ChannelType 通道类型
+  enum CHANNEL {
+    // 未知类型
+    CHANNEL_INVALID = 0;
+    // 邮件
+    CHANNEL_EMAIL_COMMON = 1;
+    // 短信
+    CHANNEL_SMS_ALI = 2;
+    // 站内信
+    CHANNEL_LETTER = 3;
+  }
+  // MS: MsgStatus 消息状态
+  enum STATUS {
+    // 未知状态
+    STATUS_INVALID = 0;
+    // 初始化状态
+    STATUS_INIT = 1;
+    // 发送中
+    STATUS_SENDING = 2;
+    // 发送成功
+    STATUS_SUCCESS = 3;
+    // 发送失败
+    STATUS_ERROR = 4;
+  }
+  // CS:CheckStatus 审核状态
+  enum CS {
+    // 未知状态
+    CS_INVALID = 0;
+    // 审核中
+    CS_CHECKING = 1;
+    // 审核通过
+    CS_SUCCESS = 2;
+    // 审核未通过
+    CS_FAIL = 3;
+  }
+}
+
+// NTF:Notify 通知相关enum
+message NTF {
+  // TYPE:NotificationType 消息通知类型
+  enum TYPE {
+    // 未知类型
+    TYPE_INVALID = 0;
+    // 系统通知
+    TYPE_SYSTEM = 1;
+    // 团队加入邀请
+    TYPE_INVITE = 3;
+    // 审核通知
+    TYPE_AUDIT = 5;
+    // 新的被@通知
+    TYPE_NEW_MENTION = 6;
+    // 新的评论通知
+    TYPE_NEW_COMMENT = 7;
+    // 申请加入空间通知
+    TYPE_APPLY_SPACE = 8;
+    // 申请加入空间分组通知
+    TYPE_APPLY_SPACE_GROUP = 9;
+    // 新回答通知
+    TYPE_NEW_ANSWER = 10;
+  }
+  // STS:STATUS 通知状态
+  enum STATUS {
+    // 用户通知状态：无效枚举值
+    STATUS_INVALID = 0;
+    // 用户通知状态：已读
+    STATUS_READED = 1;
+    // 用户通知状态：未读
+    STATUS_UNREADED = 2;
+  }
+}

@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package upload.v1;
+
+import "common/v1/enum_common.proto";
+import "validate/validate.proto";
+
+option go_package = "upload/v1;uploadv1";
+
+// 上传服务
+service Upload {
+  // 获取一次性上传文件的token
+  rpc GetToken(GetTokenReq) returns (GetTokenRes);
+  // 获取上传文件的Path
+  rpc GetPath(GetPathReq) returns (GetPathRes);
+  // 上传本地文件
+  rpc UploadLocalFile(UploadLocalFileReq) returns (UploadLocalFileRes);
+  // 展示图片
+  rpc ShowImage(ShowImageReq) returns (ShowImageRes);
+}
+
+message GetTokenReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 客户端ip
+  string clientIp = 3;
+  // refer
+  string refer = 4;
+  // 空间Guid
+  string spaceGuid = 5;
+}
+
+message GetTokenRes {
+  // oss token 列表
+  repeated Token list = 1;
+}
+
+message Token {
+  // region
+  string region = 1;
+  // oss AkID
+  string accessKeyId = 2;
+  // oss AkSecret
+  string accessKeySecret = 3;
+  // oss stsToken
+  string stsToken = 4;
+  // oss bucket
+  string bucket = 5;
+  // 过期时间，单位秒
+  string expiration = 6;
+}
+
+message GetPathReq {
+  // 上传类型，头像
+  common.v1.CMN.UP_TYPE uploadType = 1;
+  // 文件名
+  string fileName = 2;
+  // 用户id
+  int64 uid = 3 [(validate.rules).int64.gt = 0];
+  // 客户端ip
+  string clientIp = 5;
+  // refer
+  string refer = 6;
+  // 空间Guid
+  string spaceGuid = 7;
+}
+
+message GetPathRes {
+  // bucket name
+  string bucket = 1;
+  // oss object path
+  string path = 2;
+  // oss cdnName
+  string cdnName = 3;
+}
+
+message UploadLocalFileReq {
+  // dstPath
+  string dstPath = 1;
+  // file
+  bytes  file = 2;
+}
+
+message UploadLocalFileRes {}
+
+message ShowImageReq {
+  // path
+  string path = 1;
+}
+
+message ShowImageRes {
+  // path
+  bytes file = 1;
+}

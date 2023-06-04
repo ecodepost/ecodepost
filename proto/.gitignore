@@ -1,0 +1,9 @@
+.idea
+/pb
+.vscode
+
+*.swp
+*.log
+
+
+*.js

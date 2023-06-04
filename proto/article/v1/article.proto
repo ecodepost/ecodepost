@@ -1,0 +1,324 @@
+syntax = "proto3";
+
+package article.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum_common.proto";
+import "common/v1/enum_file.proto";
+import "common/v1/file.proto";
+import "validate/validate.proto";
+
+option go_package = "article/v1;articlev1";
+
+// 文档服务
+service Article {
+  // 创建文档
+  rpc CreateDocument(CreateDocumentReq) returns (CreateDocumentRes);
+  // 修改文档
+  rpc UpdateDocument(UpdateDocumentReq) returns (UpdateDocumentRes);
+  // 将文章置顶
+  rpc SetDocumentSpaceTop(SetDocumentSpaceTopReq) returns (SetDocumentSpaceTopRes);
+  // 取消文章置顶
+  rpc CancelDocumentSpaceTop(CancelDocumentSpaceTopReq) returns (CancelDocumentSpaceTopRes);
+  // 文章置顶列表
+  rpc DocumentSpaceTopList(DocumentSpaceTopListReq) returns (DocumentSpaceTopListRes);
+  // 将文章推荐
+  rpc SetDocumentRecommend(SetDocumentRecommendReq) returns (SetDocumentRecommendRes);
+  // 取消文章推荐
+  rpc CancelDocumentRecommend(CancelDocumentRecommendReq) returns (CancelDocumentRecommendRes);
+  // 文章推荐列表
+  rpc DocumentRecommendList(DocumentRecommendListReq) returns (DocumentRecommendListRes);
+  // 关闭评论
+  rpc CloseDocumentComment(CloseDocumentCommentReq) returns (CloseDocumentCommentRes);
+  // 打开评论
+  rpc OpenDocumentComment(OpenDocumentCommentReq) returns (OpenDocumentCommentRes);
+  // 删除文章
+  rpc DeleteDocument(DeleteDocumentReq) returns (DeleteDocumentRes);
+  // List 根据guids等参数查询文章列表
+  rpc ListDocumentByGuids(ListDocumentByGuidsReq) returns (ListDocumentByGuidsRes);
+  // 首页的文章列表根据不同方式展示
+  rpc HomeArticlePageList(HomeArticlePageListReq) returns (HomeArticlePageListRes);
+  // 首页的热门文章列表
+  rpc HomeArticleHotList(HomeArticleHotListReq) returns (HomeArticleHotListRes);
+  // 用户在社区中公开创建的文章列表
+  rpc PublicListByUserCreated(PublicListByUserCreatedReq) returns (PublicListByUserCreatedRes);
+}
+
+// 创建文件请求
+message CreateDocumentReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件名称
+  string name = 2 [(validate.rules).string = {
+    min_len: 1,
+    max_len: 1000
+  }];
+  // 空间guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+  // 父级文件 ID
+  string parentGuid = 4;
+  // 文件格式
+  common.v1.FILE.FORMAT format = 5;
+  // 内容
+  string content = 6;
+  // headImage
+  string headImage = 7;
+  // 创建时间，如果为0，那么使用当前时间，如果不为0，使用该时间，用于导入其他应用来的数据
+  int64 ctime = 8;
+  // 更新时间，如果为0，那么使用当前时间，如果不为0，使用该时间，用于导入其他应用来的数据
+  int64 utime = 9;
+  // 阅读量
+  int64 cntView = 10;
+  // 创建者ip
+  string ip = 11;
+}
+
+// 创建文件夹响应
+message CreateDocumentRes {
+  // 文件夹
+  common.v1.FileInfo file = 1;
+}
+
+// 修改文件请求
+message UpdateDocumentReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件id
+  string guid = 3 [(validate.rules).string.min_len = 1];
+  // 文件名称
+  string name = 4 [(validate.rules).string = {
+    min_len: 1,
+    max_len: 100
+  }];
+  // 文件内容
+  optional string content = 5;
+  // headImage
+  optional string headImage = 6;
+  // 格式
+  common.v1.FILE.FORMAT fileFormat = 7;
+}
+
+message UpdateDocumentRes {}
+
+
+message SetDocumentSpaceTopReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件id
+  string guid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message SetDocumentSpaceTopRes {}
+
+message CancelDocumentSpaceTopReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件id
+  string guid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message CancelDocumentSpaceTopRes {}
+
+message DocumentSpaceTopListReq {
+  // 用户id
+  int64 uid = 1;
+  // space guid
+  string spaceGuid = 3;
+}
+
+message DocumentSpaceTopListRes {
+  // 文章列表
+  repeated ArticleShow list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message SetDocumentRecommendReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件id
+  string guid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message SetDocumentRecommendRes {}
+
+message CancelDocumentRecommendReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件id
+  string guid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message CancelDocumentRecommendRes {}
+
+message CloseDocumentCommentReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件id
+  string guid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message CloseDocumentCommentRes {}
+
+message OpenDocumentCommentReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件id
+  string guid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message OpenDocumentCommentRes {}
+
+message DeleteDocumentReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件id
+  string guid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message DeleteDocumentRes {}
+
+message DocumentRecommendListReq {
+  // 用户id
+  int64 uid = 1;
+  // space guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message DocumentRecommendListRes {
+  // 列表
+  repeated ArticleShow list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message ListDocumentByGuidsReq {
+  // 请求查询的guid列表
+  repeated string guids = 1;
+  // 请求查询的用户ID，会用户判断是否有权限
+  int64 uid = 2;
+  // 分页
+  common.v1.Pagination pagination = 3;
+}
+
+message ListDocumentByGuidsRes {
+  // 列表
+  repeated ArticleShow list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message DocumentTree {
+  // 标题
+  string title = 1;
+  // 文件guid
+  string fileGuid = 2;
+  // 文件类型
+  common.v1.FILE.TYPE fileType = 3;
+  // 父级guid
+  string parentGuid = 4;
+  // 父级类型
+  common.v1.FILE.TYPE parentType = 5;
+  // 排序
+  int64 sort = 6;
+  // 是否启用
+  bool disabled = 7;
+  // 是否叶子节点
+  bool isLeaf = 8;
+  // children
+  repeated DocumentTree children = 9;
+  // 节点类型
+  common.v1.FILE.NODE fileNode = 10;
+  // 父节点类型
+  common.v1.FILE.NODE parentNode = 11;
+}
+
+// 文章展示信息
+message ArticleShow {
+  // 文章GUID
+  string guid = 1;
+  // 文章标题
+  string name = 2;
+  // 用户uid
+  int64 uid = 3;
+  // 用户昵称
+  string nickname = 4;
+  // 用户头像
+  string avatar = 5;
+  // 简单描述
+  string summary = 6;
+  // 创建时间
+  int64 ctime = 7;
+  // 回复总数
+  int64 cntComment = 8;
+  // 查看总数
+  int64 cntView = 9;
+  // 收藏总数
+  int64 cntCollect = 10;
+  // headImage
+  string headImage = 11;
+  // 空间Guid
+  string spaceGuid = 13;
+  // 是否有readMore
+  int32 isReadMore = 14;
+  // 是否允许创建评论
+  int32 isAllowCreateComment = 15;
+  // 是否置顶
+  int32 isSiteTop = 16;
+  // 是否推荐
+  int32 isRecommend = 17;
+  // 文档格式
+  common.v1.FILE.FORMAT format = 18;
+  // emoji list
+  repeated common.v1.EmojiInfo emojiList = 19;
+  // ip定位的地址, 暂时精确到省
+  string ipLocation = 20;
+}
+
+message PublicListByUserCreatedReq {
+  // 请求该接口的用户
+  int64 uid = 1;
+  // 创建者用户uid
+  int64 createdUid = 2 [(validate.rules).int64.gt = 0];
+  // 分页
+  common.v1.Pagination pagination = 4;
+}
+
+message PublicListByUserCreatedRes {
+  // 列表
+  repeated ArticleShow list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message HomeArticlePageListReq {
+  // 如果用户未登录，给公开的space文章
+  // 如果用户登录，给有权限的space和公开的space文章
+  optional int64 uid = 2;
+  // 分页
+  common.v1.Pagination pagination = 3;
+  // 排序类型
+  common.v1.CMN.FILE_SORT sort = 4;
+}
+
+message HomeArticlePageListRes {
+  // 列表
+  repeated common.v1.FileShow list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message HomeArticleHotListReq {
+  // 如果用户未登录，给公开的space文章
+  // 如果用户登录，给有权限的space和公开的space文章
+  optional int64 uid = 2;
+  // 选择多少文章
+  int32 limit = 3;
+  // 最近多少天的文章筛选出来，默认一般10天
+  int32 latestTime = 4;
+}
+
+message HomeArticleHotListRes {
+  // 列表
+  repeated common.v1.FileShow list = 1;
+}

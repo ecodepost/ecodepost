@@ -1,0 +1,222 @@
+syntax = "proto3";
+
+package sso.v1;
+
+import "common/v1/enum_sso.proto";
+
+option go_package = "sso/v1;ssov1";
+
+// 单点登录服务
+service Sso {
+  // Login 登录
+  rpc Login(LoginReq) returns (LoginRes);
+  // Logout 退出
+  rpc Logout(LogoutReq) returns (LogoutRes);
+  // Verify 密码
+  rpc Verify(VerifyReq) returns (VerifyRes);
+  // GetUserByParentToken
+  rpc GetUserByParentToken(GetUserByParentTokenReq) returns (GetUserByParentTokenRes);
+  // 根据Code码，获取Access的Token信息
+  rpc GetToken(GetTokenReq) returns (GetTokenRes);
+  // 根据token，删除access的token信息，退出登录
+  rpc RefreshToken(RefreshTokenReq) returns (RefreshTokenRes);
+  // 根据token，删除access的token信息，退出登录
+  rpc RemoveToken(RemoveTokenReq) returns (RemoveTokenRes);
+  // 根据Token信息，获取用户数据
+  rpc GetUserByToken(GetUserByTokenReq) returns (GetUserByTokenRes);
+  // 通过 pToken 获取subToken
+  rpc GetAccessByPToken(GetAccessByPTokenReq) returns (GetAccessByPTokenRes);
+  // 修改密码
+  rpc ResetPassword(ResetPasswordReq) returns (ResetPasswordRes);
+}
+
+
+message LoginReq {
+  // 客户端ID
+  string clientId = 1;
+  // 客户端Secret
+  string clientSecret = 2;
+  // 跳转链接
+  string redirectUri = 3;
+  // parent token
+  string parentToken = 4;
+  // uid
+  int64 uid = 5;
+  // password
+  string password = 6;
+  // 用户clientip
+  string clientIp = 7;
+  // 用户ua
+  string userAgent = 8;
+}
+
+message LoginRes {
+  Token parent = 1;
+  Token sub = 2;
+}
+
+message LogoutReq {
+  string parentToken = 1;
+}
+
+message LogoutRes {
+  string domain = 1;
+}
+
+message Token {
+  // Token信息
+  string token = 1;
+  // domain
+  string domain = 2;
+  // 授权的时间点
+  int64 authAt = 3;
+  // Token 多长时间后过期(s)
+  int64 expiresIn = 4;
+}
+
+message VerifyReq {
+  // 用户UID
+  int64 uid = 1;
+  // 密码
+  string password = 2;
+  // 放在user表里的password，是一个hash数据
+  string passwordHash = 3;
+}
+
+message VerifyRes {
+}
+
+message GetUserByParentTokenReq {
+  string parentToken = 1;
+}
+
+message GetUserByParentTokenRes {
+  //
+  int64 uid = 1;
+  // 昵称
+  string nickname = 2;
+  // 头像
+  string avatar = 3;
+}
+
+// 获取Access的请求
+message GetTokenReq {
+  // Code
+  string code = 1;
+  // 按照oauth2规范，编码client id client secret，传递数据， Authorization: Basic xxxx==
+  string authorization = 2;
+  // 客户端IP
+  string clientIP = 3;
+  // 客户端UA
+  string clientUA = 4;
+  // 跳转地址
+  string redirectUri = 5;
+}
+
+// 获取Access的响应
+message GetTokenRes {
+  // Token信息
+  string token = 1;
+  // 过期时间
+  int64 expiresIn = 2;
+}
+
+// 获取Access的请求
+message RefreshTokenReq {
+  // Code
+  string code = 1;
+  // 按照oauth2规范，编码client id client secret，传递数据， Authorization: Basic xxxx==
+  string authorization = 2;
+  // 客户端IP
+  string clientIP = 3;
+  // 客户端UA
+  string clientUA = 4;
+}
+
+// 获取Access的响应
+message RefreshTokenRes {
+  // Token信息
+  string token = 1;
+  // 过期时间
+  int64 expiresIn = 2;
+}
+
+// 删除Access的请求
+message RemoveTokenReq {
+  // Token信息
+  string token = 1;
+}
+
+// 删除Access的响应
+message RemoveTokenRes {}
+
+// 获取用户信息的请求
+message GetUserByTokenReq {
+  // Token信息
+  string token = 1;
+}
+
+// 用户信息
+message GetUserByTokenRes {
+  // 用户uid
+  int64 uid = 1;
+  // 用户昵称，中文名
+  string nickname = 2;
+  // 用户名，拼音
+  string username = 3;
+  // 头像
+  string avatar = 4;
+  // 邮箱
+  string email = 5;
+  // 用户名称
+  string name = 6;
+}
+
+// 用户信息
+message User {
+  // 用户uid
+  int64 uid = 1;
+  // 用户昵称，中文名
+  string nickname = 2;
+  // 用户名，拼音
+  string username = 3;
+  // 头像
+  string avatar = 4;
+  // 邮箱
+  string email = 5;
+  // 用户名称
+  string name = 6;
+}
+
+message ResetPasswordReq {
+  // 用户uid
+  int64 uid = 1;
+  // 用户密码
+  string password = 2;
+}
+
+message ResetPasswordRes {}
+
+// 获取Token请求
+message GetAccessByPTokenReq {
+  // Client Id
+  string clientId = 1;
+  // Client Secret
+  string clientSecret = 2;
+  // Parent token
+  string pToken = 3;
+  // 平台
+  common.v1.SSO.Platform platform = 4;
+  // Client IP
+  string clientIp = 5;
+  // Client UserAgent
+  string clientUa = 6;
+}
+
+// 通过 pToken 获取subToken响应
+message GetAccessByPTokenRes {
+  // 登录 token
+  string token = 1;
+  // 过期时间
+  int64 expiresIn = 2;
+}

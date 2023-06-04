@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package common.v1;
+
+import "common/v1/enum_common.proto";
+import "common/v1/enum_community.proto";
+import "common/v1/enum_pms.proto";
+import "common/v1/enum_user.proto";
+
+option go_package = "common/v1;commonv1";
+
+// 用户信息
+message UserInfo {
+  // 用户ID
+  int64 uid = 1;
+  // 创建时间
+  int64 ctime = 2;
+  // 用户昵称
+  string nickname = 3;
+  // 邮件
+  string email = 4;
+  // 手机号
+  string mobile = 5;
+  // 头像
+  string avatar = 6;
+  // 用户名拼音
+  string namePinyin = 7;
+  // 邮箱绑定状态
+  common.v1.USER.EBS emailBindStatus = 8;
+  // 用户名称
+  string name = 9;
+}
+
+// 用户基础信息
+message UserBaseInfo {
+  // 用户ID
+  int64 uid = 1;
+  // 用户昵称
+  string nickname = 2;
+  // 头像
+  string avatar = 3;
+}
+
+message CommunityInfo {
+  // 团队名称
+  string name = 1;
+  // 团队描述
+  string description = 2;
+  // LOGO
+  string logo = 3;
+  // 团队创建人
+  int64 uid = 4;
+  // 是否允许创建分组
+  int32 isAllowCreateSpaceGroup = 5;
+  // 创建时间
+  int64 ctime = 6;
+  // Access加入方式
+  common.v1.CMT.ACS access = 7;
+}
+
+// 团队成员信息
+message CommunityMemberInfo {
+  // 用户信息
+  UserInfo userInfo = 1;
+  // 成员状态
+  common.v1.CMT.MS status = 2;
+  // 成员角色
+  common.v1.CMT.ROLE role = 3;
+}
+
+// MemberRole 用户信息
+message MemberRole {
+  // 用户ID
+  int64 uid = 1;
+  // 用户昵称
+  string nickname = 2;
+  // 头像
+  string avatar = 3;
+  // 创建时间
+  int64 ctime = 4;
+  // pmsManagerType
+  common.v1.PMS.MANAGER pmsManagerType = 5;
+  // 用户名称
+  string name = 6;
+}

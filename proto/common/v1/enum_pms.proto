@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "common/v1;commonv1";
+
+// [enum 缩写原则]:
+//   1. 超过4个字母后可以考虑缩写。
+//   2. 省略元音与重复的字母，比如: TarGeT->TGT; NoTiFy -> NTF; STaTuS -> STS;
+//   3. 多个单词组成，可以直接使用首字母，比如 UserAgent -> UA; UserAuthStatus -> UAS;
+//   4. 一定要加上完整英文注释说明，比如 UA 上一行，必须注释『// UA:UserAgent 用户代理』
+
+// PMS:Pms 权限相关枚举值
+message PMS {
+  // ACT_TYPE:ActionType
+  enum ACT_TYPE {
+    // 未知类型
+    ACT_TYPE_INVALID = 0;
+    // 超级管理员
+    ACT_TYPE_SUPER_ADMIN = 1;
+    // SPACE group
+    ACT_TYPE_SPACE_GROUP = 3;
+    // SPACE
+    ACT_TYPE_SPACE = 4;
+    // ROLE
+    ACT_TYPE_ROLE = 5;
+  }
+  // SUB:Subject
+  enum SUB {
+    // 未知类型
+    SUB_INVALID = 0;
+    // 角色
+    SUB_ROLE = 1;
+    // 用户
+    SUB_USER = 2;
+  }
+  // RSC:ResourceType
+  enum RSC {
+    // 未知类型
+    RSC_INVALID = 0;
+    // 系统
+    RSC_SYSTEM = 1;
+    // 空间分组
+    RSC_SPACE_GROUP = 2;
+    // 空间
+    RSC_SPACE = 3;
+  }
+  // MANAGER:ManagerType
+  enum MANAGER {
+    // 未知类型
+    MANAGER_INVALID = 0;
+    // 创建者
+    MANAGER_CREATE = 1;
+    // 超级管理员
+    MANAGER_SUPER_ADMIN = 2;
+  }
+  // ACT:权限动作
+  enum ACT {
+    // 未知
+    INVALID = 0;
+    // 全部权限
+    FULL_ACCESS = 1;
+    // ----------COMMUNITY----------
+    // 查看社区数据
+    COMMUNITY_DATA = 2;
+    // 允许查看管理员日志
+    COMMUNITY_LOGGER = 3;
+    // ----------SPACE----------
+    // 创建空间分组权限
+    SPACE_GROUP_CREATE = 4;
+    // 修改空间分组
+    SPACE_GROUP_UPDATE = 5;
+    // 删除空间分组
+    SPACE_GROUP_DELETE = 6;
+    // 创建空间
+    SPACE_CREATE = 7;
+    // 修改空间
+    SPACE_UPDATE = 8;
+    // 删除空间
+    SPACE_DELETE = 9;
+    // ----------FILE----------
+    // 创建帖子
+    FILE_MANAGE = 101;
+    // File创建权限
+    FILE_CREATE = 102;
+    // File更新权限, 不在role的配置里
+    FILE_UPDATE = 103;
+    // File删除权限
+    FILE_DELETE = 104;
+    // File读权限
+    FILE_READ = 110;
+    // File设置推荐权限
+    FILE_SET_RECOMMEND = 105;
+    // File设置置顶权限
+    FILE_SET_SITE_TOP = 106;
+    // File设置评论开关权限，不在role的配置里
+    FILE_SET_COMMENT = 107;
+    // File是否可以参与评论权限，不在role的配置里
+    FILE_CREATE_COMMENT = 108;
+    // File是否可以删除评论权限
+    FILE_DELETE_COMMENT = 109;
+  }
+}

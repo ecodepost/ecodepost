@@ -1,0 +1,186 @@
+syntax = "proto3";
+
+package column.v1;
+
+import "common/v1/enum_file.proto";
+import "common/v1/file.proto";
+import "validate/validate.proto";
+
+option go_package = "column/v1;columnv1";
+
+// 文档服务
+service Column {
+  // 创建文档
+  rpc Create(CreateReq) returns (CreateRes);
+  // 修改文档
+  rpc Update(UpdateReq) returns (UpdateRes);
+  // 删除文章
+  rpc Delete(DeleteReq) returns (DeleteRes);
+  // 修改顺序
+  rpc ChangeSort(ChangeSortReq) returns (ChangeSortRes);
+  // 列表的permission
+  rpc ListPermission(ListPermissionReq) returns (ListPermissionRes);
+  // 获取文章所有Files
+  rpc ListFile(ListFileReq) returns (ListFileRes);
+  // 修改专栏的额外space属性
+  rpc CreateSpaceInfo(CreateSpaceInfoReq) returns (CreateSpaceInfoRes);
+  // 修改专栏的额外space属性
+  rpc UpdateSpaceInfo(UpdateSpaceInfoReq) returns (UpdateSpaceInfoRes);
+  // 修改专栏的额外space属性
+  rpc GetSpaceInfo(GetSpaceInfoReq) returns (GetSpaceInfoRes);
+}
+
+// 创建文件请求
+message CreateReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件名称
+  string name = 3 [(validate.rules).string = {
+    min_len: 1,
+    max_len: 100
+  }];
+  // 空间guid
+  string spaceGuid = 4 [(validate.rules).string.min_len = 1];
+  // 父级文件 ID
+  string parentGuid = 5;
+  // 文件格式
+  common.v1.FILE.FORMAT format = 6;
+  // 内容
+  string content = 7;
+  // headImage
+  string headImage = 8;
+  // 创建时间，如果为0，那么使用当前时间，如果不为0，使用该时间，用于导入其他应用来的数据
+  int64 ctime = 9;
+  // 更新时间，如果为0，那么使用当前时间，如果不为0，使用该时间，用于导入其他应用来的数据
+  int64 utime = 10;
+  // 阅读量
+  int64 cntView = 11;
+  // 创建者ip
+  string ip = 12;
+}
+
+// 创建文件夹响应
+message CreateRes {
+  // 文件夹
+  common.v1.FileInfo file = 1;
+}
+
+// 修改文件请求
+message UpdateReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件id
+  string fileGuid = 3 [(validate.rules).string.min_len = 1];
+  // 文件夹名称
+  string name = 4 [(validate.rules).string = {
+    min_len: 1,
+    max_len: 100
+  }];
+  // 内容
+  optional string content = 5;
+  // headImage
+  optional string headImage = 6;
+  // 格式
+  common.v1.FILE.FORMAT fileFormat = 7;
+}
+
+message UpdateRes {}
+
+message DeleteReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件id
+  string guid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message DeleteRes {}
+
+message ChangeSortReq {
+  // 用户uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件guid
+  string fileGuid = 3 [(validate.rules).string.min_len = 1];
+  // targetFileGuid
+  optional string targetFileGuid = 4;
+  // upward or downward
+  optional string dropPosition = 5;
+  // parentFileGuid
+  optional string parentFileGuid = 6;
+}
+
+message ChangeSortRes {}
+
+message PermissionRes {
+  // 文档GUID
+  string guid = 1;
+  // 是否可以编辑
+  bool isAllowWrite = 2;
+  // 是否可以删除
+  bool isAllowDelete = 3;
+  // 是否可以打开评论或者关闭评论
+  bool isAllowSetComment = 4;
+  // 是否可以创建评论
+  bool isAllowCreateComment = 5;
+}
+
+message ListPermissionReq {
+  // 收藏人Uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 空间guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message ListPermissionRes {
+  // 权限列表
+  repeated PermissionRes list = 1;
+}
+
+message ListFileReq {
+  // 用户uid
+  int64 uid = 1;
+  // 空间guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message ListFileRes {
+  // file 列表
+  repeated common.v1.FileInfo files = 1;
+}
+
+message UpdateSpaceInfoReq {
+  // 用户uid
+  int64 uid = 1;
+  // 空间guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+  // author id
+  int64 authorUid = 4;
+}
+
+message UpdateSpaceInfoRes {}
+
+message CreateSpaceInfoReq {
+  // 用户uid
+  int64 uid = 1;
+  // 空间guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+  // author id
+  int64 authorUid = 4;
+}
+
+message CreateSpaceInfoRes {}
+
+message GetSpaceInfoReq {
+  // 用户uid
+  int64 uid = 1;
+  // 空间guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message GetSpaceInfoRes {
+  // authorUid
+  int64 authorUid = 1;
+  // authorNickname
+  string authorNickname = 2;
+  // authorAvatar
+  string authorAvatar = 3;
+}

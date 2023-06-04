@@ -1,0 +1,134 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "common/v1;commonv1";
+
+// [enum 缩写原则]:
+//   1. 超过4个字母后可以考虑缩写。
+//   2. 省略元音与重复的字母，比如: TarGeT->TGT; NoTiFy -> NTF; STaTuS -> STS;
+//   3. 多个单词组成，可以直接使用首字母，比如 UserAgent -> UA; UserAuthStatus -> UAS;
+//   4. 一定要加上完整英文注释说明，比如 UA 上一行，必须注释『// UA:UserAgent 用户代理』
+
+// SPC:Space 空间相关枚举值
+message SPC {
+  // 空间类型
+  //  enum TYPE {
+  //    // 无效枚举值
+  //    TYPE_INVALID = 0;
+  //    // 帖子
+  //    TYPE_ARTICLE = 1;
+  //    // 问答
+  //    TYPE_QUESTION = 2;
+  //    // IM 聊天
+  //    TYPE_IM = 3;
+  //    // 活动
+  //    TYPE_ACTIVITY = 4;
+  //    // 云盘
+  //    TYPE_DRIVE = 5;
+  //    // 专栏
+  //    TYPE_COLUMN = 6;
+  //    // 第三方
+  //    //    TYPE_THIRD = 6;
+  //
+  //  }
+  // THIRD:SpaceThirdType 空间第三方类型
+  //  enum THIRD {
+  //    // EMPTY
+  //    THIRD_EMPTY = 0;
+  //    // github
+  //    THIRD_GITHUB = 1;
+  //  }
+  // LAYOUT:SpaceLayout 空间布局
+  enum LAYOUT {
+    // EMPTY
+    LAYOUT_EMPTY = 0;
+    // 列表模式
+    LAYOUT_ARTICLE_LIST = 1;
+    // 卡牌流模式
+    LAYOUT_ARTICLE_CARD = 2;
+    // FEED流模式
+    LAYOUT_ARTICLE_FEED = 3;
+    // 树型流模式
+    LAYOUT_ARTICLE_TREE = 4;
+  }
+  // ROLE:SpaceRole 空间权限
+  enum ROLE {
+    // 非法状态
+    ROLE_INVALID = 0;
+    // 没有权限状态
+    ROLE_NO_ACCESS = 1;
+    // 可以查看
+    ROLE_VIEWER = 2;
+    // 可以查看，可以评论
+    ROLE_COMMENTER = 3;
+    // 可以编辑
+    ROLE_EDITOR = 4;
+    // 所有权限状态
+    ROLE_FULL_ACCESS = 99;
+  }
+  // OPTION:可选项
+  enum OPTION {
+    // 无效
+    OPTION_INVALID = 0;
+    // 文件下允许创建新文件
+    OPTION_FILE_IS_ALLOW_CREATE_FILE = 101;
+    // 文件下允许评论
+    OPTION_FILE_IS_ALLOW_CREATE_COMMENT = 102;
+    // 文件默认排序
+    OPTION_FILE_DEFAULT_SORT = 103;
+    // 文件TOP
+    OPTION_SITE_TOP_FILE_SHOW_ALL = 104;
+    //    OPTION_ARTICLE_IS_ALLOW_CREATE_FILE = 1101;
+    //    OPTION_ARTICLE_IS_ALLOW_CREATE_COMMENT = 1102;
+    //    OPTION_ARTICLE_DEFAULT_SORT = 1103;
+    //    OPTION_QUESTION_IS_ALLOW_CREATE_FILE = 201;
+    //    OPTION_QUESTION_IS_ALLOW_CREATE_COMMENT = 202;
+    //    OPTION_QUESTION_DEFAULT_SORT = 203;
+    //    OPTION_ACTIVITY_IS_ALLOW_CREATE_FILE = 204;
+    //    OPTION_ACTIVITY_IS_ALLOW_CREATE_COMMENT = 205;
+    //    OPTION_ACTIVITY_DEFAULT_SORT = 206;
+  }
+  // OPTION_TYPE:可选项
+  enum OPTION_TYPE {
+    // 无效
+    OPTION_TYPE_INVALID = 0;
+    // OPTION_TYPE_SWITCH
+    OPTION_TYPE_SWITCH = 1;
+    // OPTION_TYPE_SELECT
+    OPTION_TYPE_SELECT = 2;
+  }
+  // ChargeType:收费类型
+  enum CT {
+    // 未知类型
+    CT_INVALID = 0;
+    // 免费
+    CT_FREE = 1;
+    // 一次买断
+    CT_BUYOUT = 2;
+    // 会员制
+    CT_MEMBERSHIP = 3;
+  }
+  // Access:可访问配置
+  enum ACS {
+    // 未知类型
+    ACS_INVALID = 0;
+    // 可公开访问，（管理员仍可手动添加），任何能进入到社区的用户都能访问此空间
+    ACS_OPEN = 1;
+    // 私密访问，外部用户禁止进入空间（管理员仍可手动添加）
+    ACS_DENY_ALL = 2;
+    // 私密访问，外部用户主动申请（管理员仍可手动添加），才能加入此空间
+    ACS_USER_APPLY = 3;
+    // 私密访问，外部用户购买资格（管理员仍可手动添加），才能加入此空间
+    ACS_USER_PAY = 4;
+  }
+  // STATUS:编辑状态
+  // enum STATUS {
+  //   // 未知类型
+  //   STATUS_INVALID = 0;
+  //   // 草稿
+  //   STATUS_DRAFT = 1;
+  //   // 已发布
+  //   STATUS_PUBLISHED = 2;
+  // }
+}

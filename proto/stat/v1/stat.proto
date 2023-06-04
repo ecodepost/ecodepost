@@ -1,0 +1,179 @@
+syntax = "proto3";
+
+package stat.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum_common.proto";
+import "validate/validate.proto";
+
+option go_package = "stat/v1;statv1";
+
+// Stat 状态服务
+service Stat {
+  // 创建收藏夹
+  rpc CollectionGroupCreate(CollectionGroupCreateReq) returns (CollectionGroupCreateRes);
+  // 获取收藏夹
+  rpc CollectionGroupList(CollectionGroupListReq) returns (CollectionGroupListRes);
+  // 更新收藏夹
+  rpc CollectionGroupUpdate(CollectionGroupUpdateReq) returns (CollectionGroupUpdateRes);
+  // 删除收藏夹
+  rpc CollectionGroupDelete(CollectionGroupDeleteReq) returns (CollectionGroupDeleteRes);
+  // 收藏某个目标到某几个收藏夹
+  rpc CollectionCreate(CollectionCreateReq) returns (CollectionCreateRes);
+  // 从几个收藏夹取消收藏某个目标
+  rpc CollectionDelete(CollectionDeleteReq) returns (CollectionDeleteRes);
+  // 查看某个收藏夹收藏列表
+  rpc CollectionList(CollectionListReq) returns (CollectionListRes);
+  // 根据文件GUIDS查看收藏列表
+  rpc MyCollectionListByFileGuids(MyCollectionListByFileGuidsReq) returns (MyCollectionListByFileGuidsRes);
+  // 是否收藏
+  rpc IsCollection(IsCollectionReq) returns (IsCollectionRes);
+}
+
+message CollectionGroupCreateReq {
+  // 收藏人uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 收藏夹标题
+  string title = 3 [(validate.rules).string.min_len = 1];
+  // 收藏夹说明
+  string desc = 4;
+}
+
+message CollectionGroupCreateRes {
+  // 收藏分组ID
+  int64 id = 1;
+}
+
+message CollectionGroupListReq {
+  // 收藏人uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+}
+
+message CollectionGroupListRes {
+  // 列表
+  repeated CollectionGroupInfo list = 1;
+}
+
+message CollectionGroupUpdateReq {
+  // 收藏夹id
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+  // 收藏人Uid
+  int64 uid = 2 [(validate.rules).int64.gt = 0];
+  // 收藏夹标题
+  optional string title = 4;
+  // 收藏夹说明
+  optional string desc = 5;
+}
+
+message CollectionGroupUpdateRes {}
+
+message CollectionGroupDeleteReq {
+  // 收藏人uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 收藏夹ID
+  int64 id = 3 [(validate.rules).int64.gt = 0];
+}
+
+message CollectionGroupDeleteRes {}
+
+message CollectionCreateReq {
+  // 收藏人Uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 需要添加的收藏夹ID列表
+  repeated int64 collectionGroupIds = 3 [(validate.rules).repeated.min_items = 1];
+  // 业务Guid
+  string bizGuid = 4 [(validate.rules).string.min_len = 1];
+  // 业务类型
+  common.v1.CMN.BIZ bizType = 5;
+}
+
+message CollectionCreateRes {
+  // 收藏关联表ID
+  repeated int64 ids = 1;
+  // 真正添加的数量
+  int64 delta = 2;
+}
+
+message CollectionDeleteReq {
+  // 收藏人Uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 需要从中移除的收藏夹ID列表
+  repeated int64 collectionGroupIds = 3 [(validate.rules).repeated.min_items = 1];
+  // 业务ID
+  string bizGuid = 4 [(validate.rules).string.min_len = 1];
+  // 业务类型
+  common.v1.CMN.BIZ bizType = 5;
+}
+
+message CollectionDeleteRes {
+  // 真正减少的数量
+  int64 delta = 1;
+}
+
+message CollectionListReq {
+  // 收藏人uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 收藏夹ID
+  int64 collectionGroupId = 3 [(validate.rules).int64.gt = 0];
+  // 分页
+  common.v1.Pagination pagination = 4;
+}
+
+message CollectionListRes {
+  // 收藏目标列表
+  repeated CollectionInfo list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message MyCollectionListByFileGuidsReq {
+  // 收藏人uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 收藏夹ID
+  repeated string fileGuids = 2 [(validate.rules).repeated.min_items = 1];
+}
+
+message MyCollectionListByFileGuidsRes {
+  // 收藏目标列表
+  repeated CollectionInfo list = 1;
+}
+
+message CollectionGroupInfo {
+  // 收藏夹id
+  int64 id = 1;
+  // 收藏夹标题
+  string title = 2;
+  // 收藏夹说明
+  string desc = 3;
+  // isCollect
+  bool isCollect = 4;
+  // 总数
+  int64 cnt = 5;
+}
+
+message CollectionInfo {
+  // id
+  int64 id = 1;
+  // 收藏人Uid
+  int64 uid = 2;
+  // 需要添加的收藏夹ID列表
+  repeated int64 collectionGroupIds = 4;
+  // 业务Guid
+  string bizGuid = 5;
+  // 业务类型
+  common.v1.CMN.BIZ bizType = 6;
+}
+
+message IsCollectionReq {
+  // 收藏人Uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 业务Guid
+  string bizGuid = 3 [(validate.rules).string.min_len = 1];
+  // 业务类型
+  common.v1.CMN.BIZ bizType = 4;
+}
+
+message IsCollectionRes {
+  // 是否已收藏
+  int32 isCollect = 1;
+}

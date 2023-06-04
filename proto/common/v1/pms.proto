@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "common/v1;commonv1";
+
+message PmsItem {
+  // 标识
+  string actionName = 1;
+  // 标题
+  string title = 2;
+  // 描述
+  string desc = 3;
+  // 符号，现在是switch，也可能后续是select
+  int32 flag = 4;
+  // 是否需要升级
+  int32 needUpgrade = 5;
+  // 升级描述
+  string upgradeDesc = 6;
+}

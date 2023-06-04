@@ -1,0 +1,177 @@
+syntax = "proto3";
+
+package comment.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum_common.proto";
+import "common/v1/enum_file.proto";
+import "validate/validate.proto";
+
+option go_package = "comment/v1;commentv1";
+
+// 评论服务
+service Comment {
+  // Create ...
+  rpc Create(CreateReq) returns (CreateRes);
+  // List ...
+  rpc List(ListReq) returns (ListRes);
+  // ChildList ...
+  rpc ChildList(ChildListReq) returns (ChildListRes);
+  // Delete ...
+  rpc Delete(DeleteReq) returns (DeleteRes);
+  // ListByUser...
+  rpc ListByUser(ListByUserReq) returns (ListByUserRes);
+}
+
+// 评论和回复时候使用
+message CreateReq {
+  // 用户Uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 评论对象id 目的提供给其他评论使用
+  string bizGuid = 3 [(validate.rules).string.min_len = 1];
+  // 业务类型
+  common.v1.CMN.BIZ bizType = 4;
+  // actionGuid
+  string actionGuid = 5;
+  // 文章行为
+  common.v1.FILE.ACT actionType = 6;
+  // 评论id,当为留言时候不填，回复时需要填写
+  string commentGuid = 7;
+  // 内容
+  string content = 8 [(validate.rules).string.min_len = 1];
+  // 创建时间，如果为0，那么使用当前时间，如果不为0，使用该时间，用于导入其他应用来的数据
+  int64 ctime = 9;
+  // 更新时间，如果为0，那么使用当前时间，如果不为0，使用该时间，用于导入其他应用来的数据
+  int64 utime = 10;
+  // 用户ip
+  string ip = 11;
+}
+
+message CreateRes {
+  // 评论的guid
+  string commentGuid = 1;
+}
+
+// 获取评论内容
+message ListReq {
+  // 业务Guid
+  string bizGuid = 1 [(validate.rules).string.min_len = 1];
+  // 业务类型
+  common.v1.CMN.BIZ bizType = 2;
+  // 分页
+  common.v1.Pagination pagination = 3;
+}
+
+message ListRes {
+  // 评论列表
+  repeated CommentDetail list = 1;
+  // 这里面total，是一级评论总数
+  common.v1.Pagination pagination = 2;
+  // 所有评论总数
+  int32 cntComment = 3;
+}
+
+message ChildListReq {
+  // 拉去展开评论，为0为获取评论列表
+  string commentGuid = 1;
+  // 业务Guid
+  string bizGuid = 2 [(validate.rules).string.min_len = 1];
+  // 业务类型
+  common.v1.CMN.BIZ bizType = 3;
+  // 分页
+  common.v1.Pagination pagination = 4;
+}
+
+message ChildListRes {
+  // 评论列表
+  repeated CommentDetail list = 1;
+  // 这里面total，是一级评论总数
+  common.v1.Pagination pagination = 2;
+  // 所有评论总数
+  int32 cntComment = 3;
+}
+
+// 删除评论
+message DeleteReq {
+  // 用户Uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 评论Guid
+  string commentGuid = 3 [(validate.rules).string.min_len = 1];
+  // 业务Guid
+  string bizGuid = 4 [(validate.rules).string.min_len = 1];
+  // 业务类型
+  common.v1.CMN.BIZ bizType = 5;
+  // 分页
+  common.v1.FILE.CMET_DEL deleteType = 6;
+}
+
+message DeleteRes {}
+
+// 获取评论信息
+message ListByUserReq {
+  // 业务Guid
+  int64 bizGuid = 1;
+  // 业务类型
+  common.v1.CMN.BIZ bizType = 2;
+  // 用户Uid
+  int64 uid = 3 [(validate.rules).int64.gt = 0];
+  // 分页
+  common.v1.Pagination pagination = 4;
+}
+
+message ListByUserRes {
+  // 评论列表
+  repeated CommentDetail list = 1;
+  // 这里面total，是一级评论总数
+  common.v1.Pagination pagination = 2;
+  // 所有评论总数
+  int32 cntComment = 3;
+}
+
+// 获取返回的信息使用
+message CommentDetail {
+  // 评论id 也作为pageSeq使用
+  string commentGuid = 1;
+  // 业务Guid
+  string bizGuid = 2;
+  // 业务类型
+  common.v1.CMN.BIZ bizType = 3;
+  // 内容
+  string content = 4;
+  // 回复的reply to comment id
+  string replyToGuid = 5;
+  // 回复的根评论id。 a评论，b回复了a，c回复了b，那么c的reply to root id，为根的id信息
+  string replyToRootGuid = 6;
+  // 用户Uid
+  int64 uid = 7;
+  // 昵称
+  string userNickname = 8;
+  // 头像像
+  string userAvatar = 9;
+  // 回复用户Uid
+  int64 replyToUid = 10;
+  // 回复用户昵称
+  string replyNickname = 11;
+  // 回复用户头像
+  string replyAvatar = 12;
+  // 点星总数
+  int32 cntStar = 13;
+  //点赞状态 1为点赞 0不点赞
+  int32 starStatus = 14;
+  // 时间
+  int64 ctime = 15;
+  // 是否是回复信息
+  int32 isReply = 16;
+  // actionGuid
+  string actionGuid = 17;
+  // 文章行为
+  common.v1.FILE.ACT actionType = 18;
+  // 默认两条
+  repeated CommentDetail children = 19;
+  // 子评论总数
+  int64 cntChildComment = 20;
+  // 子评论
+  bool hasMoreChildComment = 21;
+  // ip定位的地址, 暂时精确到省
+  string ipLocation = 22;
+}

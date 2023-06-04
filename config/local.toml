@@ -1,0 +1,198 @@
+# 对象存储
+[oss]
+# 模式：如果简单验证服务，那么选择file
+# alists：使用alists，上传图片，可以大幅度降低成本
+# file: 使用本地此片存储图片
+mode="file"
+bucket="gocn-cdn"
+cdnName="http://localhost:9002"
+prefix="postimage"
+[oss.alists]
+regionId = "cn-beijing"
+accessKeyID = "xxx"
+accessKeySecret = "xxxx"
+roleArn = "acs:ram::xxxx:role/ramosstest"
+policy = '''
+{
+    "Version": "1",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "oss:Put*",
+            "Resource": [
+                "acs:oss:*:*:xxx/postimage/*",
+            ]
+        }
+    ]
+}
+'''
+[oss.file]
+path="./"
+
+# redis 配置
+[redis]
+debug = true # ego增加redis debug，打开后可以看到，配置名、地址、耗时、请求数据、响应数据
+addr = "127.0.0.1:6379"
+db=10
+enableAccessInterceptor = true
+enableAccessInterceptorReq = true
+enableAccessInterceptorRes = true
+
+# mysql user配置
+[mysql.user]
+connMaxLifetime = "300s"
+debug = true
+dsn = "root:root@tcp(127.0.0.1:3306)/post_user?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=True&loc=Local&timeout=1s&readTimeout=3s&writeTimeout=3s"
+level = "panic"
+maxIdleConns = 50
+maxOpenConns = 100
+enableDetailSQL = true
+enableAccessInterceptor = true
+enableAccessInterceptorReq = true
+enableAccessInterceptorRes = true
+
+# mysql 主配置
+[mysql.default]
+connMaxLifetime = "300s"
+debug = true
+dsn = "root:root@tcp(127.0.0.1:3306)/post_main?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=True&loc=Local&readTimeout=5s&timeout=5s&writeTimeout=5s"
+level = "panic"
+maxIdleConns = 50
+maxOpenConns = 100
+enableAccessInterceptor = true
+enableAccessInterceptorRes = true
+enableAccessInterceptorReq = true
+
+
+[notify.letter]
+
+[user-svc]
+[user-svc.server.grpc]
+network = "unix"
+host="user-svc.sock"
+enableAccessInterceptor = true
+enableAccessInterceptorRes = true
+enableAccessInterceptorReq = true
+
+[user-svc.server.governor]
+port = 9092
+
+
+
+[user-svc.cron.notify]
+enable=false
+enableDistributedTask = false   # 是否分布式任务，默认否，如果存在分布式任务，会只执行该定时人物
+enableImmediatelyRun = false   # 是否立刻执行，默认否
+enableSeconds = true    # 是否使用秒作解析器，默认否
+spec = "* * * * * *"     # 执行时间
+delayExecType = "skip"     # skip，queue，concurrent，如果上一个任务执行较慢，到达了新任务执行时间，那么新任务选择跳过，排队，并发执行的策略，新任务默认选择skip策略
+
+[user-svc.guid]
+salt = "hello"
+length = 10
+
+[user-svc.userGuid]
+salt = "xuserh"
+length = 5
+
+
+
+[user-svc.oauth]
+delimiter = "$"
+salt = 8
+secret = "3Kjfa3dh345QRxictk"
+stretchingPassword = 80
+tokenDomain = "localhost"
+# TokenExpiration = 1209600
+# ParentTokenExpiration = 5184000
+subTokenRefreshTime = 3600
+redirectUriSeparator = "," # 支持多redirect uri
+
+
+[resource-svc]
+mode = "local"
+[resource-svc.registry]
+[resource-svc.k8s]
+
+
+
+
+[resource-svc.grpc.usersvc]
+addr = "unix:user-svc.sock"
+#addr = "127.0.0.1:9091"
+balancerName = "round_robin" # 默认值
+dialTimeout = "3s" # 默认值
+enableAccessInterceptor = true
+enableAccessInterceptorRes = true
+enableAccessInterceptorReq = true
+
+[resource-svc.cron.score]
+enable = true
+enableDistributedTask = true          # 是否分布式任务，默认否，如果存在分布式任务，会只执行该定时人物
+enableImmediatelyRun = false        # 是否立刻执行，默认否
+delayExecType = "skip"  # skip，queue，concurrent，如果上一个任务执行较慢，到达了新任务执行时间，那么新任务选择跳过，排队，并发执行的策略，新任务默认选择skip策略
+enableSeconds = false # 启用秒单位
+spec = "* * * * *"
+
+
+[resource-svc.ehttp]
+debug = true
+rawDebug = true
+readTimeout = '10s'
+slowLogThreshold = "1s"
+enableAccessInterceptor = true
+enableAccessInterceptorRes = true
+
+[resource-svc.spaceGuid]
+salt = "hello"
+length = 6
+
+[resource-svc.guid]
+salt = "hello"
+length = 10
+
+
+[bff]
+mode = "local"
+debug = true
+mainDomain = "ecodepost.com"
+domain = "https://ecodepost.com"
+referralLink="https://%s/join-cmt?ref=%s#快来加入ecodepost吧！"
+
+[bff.k8s]
+
+[bff.logger.default]
+level = "debug"
+
+[bff.registry]
+connectTimeout = "3s"
+secure = false
+
+[bff.grpc.user]
+addr = "unix:user-svc.sock"
+balancerName = "round_robin" # 默认值
+dialTimeout = "5s" # 默认值
+readTimeout = "5s" # 默认值
+enableAccessInterceptor = true
+enableAccessInterceptorRes = true
+enableAccessInterceptorReq = true
+
+[bff.grpc.resource]
+addr = "unix:resource-svc.sock"
+balancerName = "round_robin" # 默认值
+dialTimeout = "5s" # 默认值
+readTimeout = "5s" # 默认值
+enableAccessInterceptor = true
+enableAccessInterceptorRes = true
+enableAccessInterceptorReq = true
+
+[bff.sso]
+ssoAddr = "unix:user-svc.sock"
+tokenSecure = false # 关闭https写入
+clientId = "clientid123456"
+clientSecret = "secret123456"
+authURL = "http://of-sso.ecodepost.com/oauth/login"
+registerURL = "http://of-sso.ecodepost.com/register"
+redirectURL = "http://localhost:8000/api/oauth/code"
+logoutURL = "http://of-sso.ecodepost.com/oauth/logout"
+needRefreshTokenDuration = 3600

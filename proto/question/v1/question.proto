@@ -1,0 +1,304 @@
+syntax = "proto3";
+
+package question.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum_common.proto";
+import "common/v1/enum_file.proto";
+import "common/v1/file.proto";
+import "validate/validate.proto";
+
+option go_package = "question/v1;questionv1";
+
+// 资源服务
+service Question {
+  // 创建问答
+  rpc Create(CreateReq) returns (CreateRes);
+  // 修改问答
+  rpc Update(UpdateReq) returns (UpdateRes);
+  // 获取文档内容的链接，前端读取文件内容渲染，有缓存，走CDN流量鉴权到OSS
+  //  rpc Info(InfoReq) returns (InfoRes);
+  // 创作者获取文档内容，无缓存，走机房流量
+  //  rpc GetContentByCreator(GetContentByCreatorReq) returns (GetContentByCreatorRes);
+  // 获取文档内容的链接，前端读取文件内容渲染，有缓存，走CDN流量鉴权到OSS
+  //  rpc GetContent(GetContentReq) returns (GetContentRes);
+  // 删除文章
+  rpc Delete(DeleteReq) returns (DeleteRes);
+  // List Question
+  rpc ListQuestion(ListQuestionReq) returns (ListQuestionRes);
+  // List Answer
+  rpc ListAnswer(ListAnswerReq) returns (ListAnswerRes);
+  // 获取文档内容的链接，前端读取文件内容渲染，有缓存，走CDN流量鉴权到OSS
+  rpc MyInfo(MyInfoReq) returns (MyInfoRes);
+
+  // 用户公开创建的文章列表
+  rpc PublicListByUserCreated(PublicListByUserCreatedReq) returns (PublicListByUserCreatedRes);
+}
+
+// 创建文件请求
+message CreateReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件名称
+  string name = 3;
+  // 空间guid
+  string spaceGuid = 4;
+  // 父级文件 ID，如果存在父亲，说明是answer
+  string parentGuid = 5;
+  // 文件内容
+  string content = 6 [(validate.rules).string.min_len = 1];
+  // 创建者ip
+  string ip = 7;
+}
+
+// 创建文件夹响应
+message CreateRes {
+  // 文件夹
+  common.v1.FileInfo file = 1;
+}
+
+// 修改文件请求
+message UpdateReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件id
+  string guid = 3 [(validate.rules).string.min_len = 1];
+  // 文件夹名称
+  string name = 4;
+  // 文件内容
+  optional string content = 5;
+  // 格式
+  common.v1.FILE.FORMAT fileFormat = 6;
+}
+
+message UpdateRes {}
+
+//
+//// 创建文件夹响应
+//message InfoRes {
+//  // 文件夹
+//  QuestionShow file = 1;
+//}
+
+// 创建文件请求
+message MyInfoReq {
+  // 用户id
+  int64 uid = 1;
+  // 文件guid
+  string guid = 3 [(validate.rules).string.min_len = 1];
+}
+
+// 创建文件夹响应
+message MyInfoRes {
+  // 我的问题
+  string myAnswerGuid = 1;
+  // 文件夹
+  //  QuestionShow file = 1;
+}
+
+// 修改文件请求
+message GetContentByCreatorReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件id
+  string guid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message GetContentByCreatorRes {
+  // 内容
+  string content = 1;
+}
+
+// 修改文件请求
+message GetContentReq {
+  // 用户id
+  int64 uid = 1;
+  // 文件id
+  string guid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message GetContentRes {
+  // 内容url
+  string url = 1;
+}
+
+// 文章展示信息
+message QuestionShow {
+  // 文章GUID
+  string guid = 1;
+  // 文章标题
+  string name = 2;
+  // 用户uid
+  int64 uid = 3;
+  // 用户昵称
+  string nickname = 4;
+  // 用户头像
+  string avatar = 5;
+  // 简单描述
+  string summary = 6;
+  // 创建时间
+  int64 ctime = 7;
+  // 回复总数
+  int64 cntComment = 8;
+  // 查看总数
+  int64 cntView = 9;
+  // 收藏总数
+  int64 cntCollect = 10;
+  // emoji list
+  repeated common.v1.EmojiInfo list = 12;
+  // 如果是回答，那么就直接展示content
+  string content = 13;
+  // 空间Guid
+  string spaceGuid = 15;
+  // 是否有readMore
+  int32 isReadMore = 16;
+  // 是否允许创建评论
+  int32 isAllowCreateComment = 17;
+  // 是否已经收藏
+  int32 isCollect = 18;
+  // 文档格式
+  common.v1.FILE.FORMAT format = 19;
+  // ip定位的地址, 暂时精确到省
+  string ipLocation = 20;
+}
+
+// 文章展示信息
+message AnswerShow {
+  // 文章GUID
+  string guid = 1;
+  // 文章标题
+  string name = 2;
+  // 用户uid
+  int64 uid = 3;
+  // 用户昵称
+  string nickname = 4;
+  // 用户头像
+  string avatar = 5;
+  // 简单描述
+  string summary = 6;
+  // 创建时间
+  int64 ctime = 7;
+  // 回复总数
+  int64 cntComment = 8;
+  // 查看总数
+  int64 cntView = 9;
+  // 收藏总数
+  int64 cntCollect = 10;
+  // emoji list
+  repeated common.v1.EmojiInfo list = 12;
+  // 空间Guid
+  string spaceGuid = 15;
+  // 是否有readMore
+  int32 isReadMore = 16;
+  // 是否允许创建评论
+  int32 isAllowCreateComment = 17;
+  // 是否已经收藏
+  int32 isCollect = 18;
+  // 文档格式
+  common.v1.FILE.FORMAT format = 19;
+  // ip定位的地址, 暂时精确到省
+  string ipLocation = 20;
+}
+
+// 问题和回答展示信息
+message QAShow {
+  // 文章GUID
+  string guid = 1;
+  // 文章GUID
+  string parentGuid = 2;
+  // 文章标题
+  string name = 3;
+  // 用户uid
+  int64 uid = 4;
+  // 用户昵称
+  string nickname = 5;
+  // 用户头像
+  string avatar = 6;
+  // 简单描述
+  string summary = 7;
+  // 创建时间
+  int64 ctime = 8;
+  // 回复总数
+  int64 cntComment = 9;
+  // 查看总数
+  int64 cntView = 10;
+  // 收藏总数
+  int64 cntCollect = 11;
+  // emoji list
+  repeated common.v1.EmojiInfo list = 13;
+  // 如果是回答，那么就直接展示content
+  string content = 14;
+  // 空间Guid
+  string spaceGuid = 16;
+  // 是否有readMore
+  int32 isReadMore = 17;
+  // 是否允许创建评论
+  int32 isAllowCreateComment = 18;
+  // 是否已经收藏
+  int32 isCollect = 19;
+  // 文档格式
+  common.v1.FILE.FORMAT format = 20;
+  // ip定位的地址, 暂时精确到省
+  string ipLocation = 21;
+}
+
+message DeleteReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 文件id
+  string guid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message DeleteRes {}
+
+message ListQuestionReq {
+  // 用户id
+  int64 uid = 1;
+  // 空间guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+  // 分页
+  common.v1.Pagination pagination = 4;
+  // 排序类型
+  common.v1.CMN.FILE_SORT sort = 5;
+}
+
+message ListQuestionRes {
+  // 回答列表
+  repeated QuestionShow list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message ListAnswerReq {
+  // 用户id
+  int64 uid = 1;
+  // 父guid
+  string parentGuid = 3 [(validate.rules).string.min_len = 1];
+  // 分页
+  common.v1.Pagination pagination = 4;
+  // 排序类型
+  common.v1.CMN.FILE_SORT sort = 5;
+}
+
+message ListAnswerRes {
+  // 问题列表
+  repeated AnswerShow list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message PublicListByUserCreatedReq {
+  // 请求该接口的用户
+  int64 uid = 1;
+  // 创建者用户uid
+  int64 createdUid = 2 [(validate.rules).int64.gt = 0];
+  // 分页
+  common.v1.Pagination pagination = 4;
+}
+
+message PublicListByUserCreatedRes {
+  // QA 列表
+  repeated QAShow list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}

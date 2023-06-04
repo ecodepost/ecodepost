@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package user.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum_user.proto";
+import "validate/validate.proto";
+
+option go_package = "user/v1;userv1";
+
+// 用户之间关联状态服务
+service U2u {
+  // 查询一个用户的关注列表和拉黑列表
+  rpc ListU2uStat(ListU2uStatReq) returns (ListU2uStatRes);
+  // 查询一个用户的被关注列表(一般不查被拉黑列表)
+  rpc RevListU2uStat(RevListU2uStatReq) returns (RevListU2uStatRes);
+  // 一个用户关注或取消关注另一个用户，一个用户拉黑或取消拉黑另一个用户
+  rpc UpdateU2uStat(UpdateU2uStatReq) returns (UpdateU2uStatRes);
+  // 统计一个用户关注、或拉黑的总数
+  rpc CntU2uStat(CntU2uStatReq) returns (CntU2uStatRes);
+  // 统计一个用户被关注、或被拉黑的总数
+  rpc RevCntU2uStat(RevCntU2uStatReq) returns (RevCntU2uStatRes);
+}
+
+// 用户与用户状态
+message U2uStat {
+  // uid
+  int64 uid = 1;
+  // 目标uid
+  int64 targetUid = 2;
+  // 状态值
+  int32 statVal = 3;
+  // 创建时间
+  int64 ctime = 4;
+  // 更新时间
+  int64 utime = 5;
+}
+
+message ListU2uStatReq {
+  // uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 状态类型: is_block、is_follow...
+  common.v1.USER.U2U_STAT_TYPE statType = 2;
+  // 状态值
+  int32 statVal = 3;
+  // 分页
+  common.v1.Pagination Pagination = 4;
+}
+
+message ListU2uStatRes {
+  // 列表
+  repeated U2uStat list = 1;
+  // 分页
+  common.v1.Pagination Pagination = 5;
+}
+
+message RevListU2uStatReq {
+  // 目标Uid
+  int64 targetUid = 1 [(validate.rules).int64.gt = 0];
+  // 状态类型: is_block、is_follow
+  common.v1.USER.U2U_STAT_TYPE statType = 2;
+  // 状态值
+  int32 statVal = 3;
+  // 分页
+  common.v1.Pagination Pagination = 4;
+}
+
+message RevListU2uStatRes {
+  // 列表
+  repeated U2uStat list = 1;
+  // 分页
+  common.v1.Pagination Pagination = 5;
+}
+
+message UpdateU2uStatReq {
+  // 起点Uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 目标uid
+  int64 targetUid = 2 [(validate.rules).int64.gt = 0];
+  // 状态类型: is_block、is_follow
+  common.v1.USER.U2U_STAT_TYPE statType = 3;
+  // 状态值
+  int32 statVal = 4;
+}
+
+message UpdateU2uStatRes {}
+
+message CntU2uStatReq {
+  // 起点Uid，如果要查询xx关注了多少用户，则uid应为xx的uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 状态类型: is_block、is_follow
+  common.v1.USER.U2U_STAT_TYPE statType = 2;
+  // 状态值
+  int32 statVal = 3;
+}
+
+message CntU2uStatRes {
+  // 总数
+  int64 cnt = 1;
+}
+
+message RevCntU2uStatReq {
+  // 目标Uid，如果要查询xx被多少用户关注了，则targetUid应为xx的uid
+  int64 targetUid = 1 [(validate.rules).int64.gt = 0];
+  // 状态类型: is_block、is_follow
+  common.v1.USER.U2U_STAT_TYPE statType = 2;
+  // 状态值
+  int32 statVal = 3;
+}
+
+message RevCntU2uStatRes {
+  // 总数
+  int64 cnt = 1;
+}

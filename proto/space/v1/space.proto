@@ -1,0 +1,833 @@
+syntax = "proto3";
+
+package space.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum_audit.proto";
+import "common/v1/enum_common.proto";
+import "common/v1/enum_file.proto";
+import "common/v1/enum_space.proto";
+import "common/v1/file.proto";
+import "common/v1/space.proto";
+import "common/v1/user.proto";
+import "validate/validate.proto";
+
+option go_package = "space/v1;spacev1";
+
+// Space 服务
+service Space {
+  // 查询指定社区下所有SpaceGroup和其下Space
+  rpc ListSpaceAndGroup(ListSpaceAndGroupReq) returns (ListSpaceAndGroupRes);
+//  // 根据用户uid，获取到用户的所有空间
+//  rpc ListSpaceGuidsByUid(ListSpaceGuidsByUidReq) returns (ListSpaceGuidsByUidRes);
+  // 获取社区公开的space，社区跳转默认首页只允许公开的space
+  rpc ListPublicSpace(ListPublicSpaceReq) returns (ListPublicSpaceRes);
+  // 创建空间分组
+  rpc CreateSpaceGroup(CreateSpaceGroupReq) returns (CreateSpaceGroupRes);
+  // 分组基本信息
+  rpc SpaceGroupInfo(SpaceGroupInfoReq) returns (SpaceGroupInfoRes);
+  // 删除空间分组
+  rpc DeleteSpaceGroup(DeleteSpaceGroupReq) returns (DeleteSpaceGroupRes);
+  // 修改空间分组树形
+  rpc UpdateSpaceGroup(UpdateSpaceGroupReq) returns (UpdateSpaceGroupRes);
+  // 修改顺序
+  rpc ChangeSpaceGroupSort(ChangeSpaceGroupSortReq) returns (ChangeSpaceGroupSortRes);
+  // 查看空间分组成员列表
+  rpc SpaceGroupMemberList(SpaceGroupMemberListReq) returns (SpaceGroupMemberListRes);
+  // 添加空间分组成员
+  rpc AddSpaceGroupMember(AddSpaceGroupMemberReq) returns (AddSpaceGroupMemberRes);
+  // 删除空间分组成员
+  rpc DeleteSpaceGroupMember(DeleteSpaceGroupMemberReq) returns (DeleteSpaceGroupMemberRes);
+  // 搜索空间分组成员
+  rpc SearchSpaceGroupMember(SearchSpaceGroupMemberReq) returns (SearchSpaceGroupMemberRes);
+  // 创建空间
+  rpc CreateSpace(CreateSpaceReq) returns (CreateSpaceRes);
+  // 空间基本信息
+  rpc SpaceInfo(SpaceInfoReq) returns (SpaceInfoRes);
+  // 根据guids查询空间列表
+  rpc ListSpaceInfo(ListSpaceInfoReq) returns (ListSpaceInfoRes);
+  // 删除空间
+  rpc DeleteSpace(DeleteSpaceReq) returns (DeleteSpaceRes);
+  // 修改空间
+  rpc UpdateSpace(UpdateSpaceReq) returns (UpdateSpaceRes);
+  // 修改顺序
+  rpc ChangeSpaceSort(ChangeSpaceSortReq) returns (ChangeSpaceSortRes);
+  // Space Member List
+  rpc SpaceMemberList(SpaceMemberListReq) returns (SpaceMemberListRes);
+  // AddSpaceMember
+  rpc AddSpaceMember(AddSpaceMemberReq) returns (AddSpaceMemberRes);
+  // DeleteSpaceMember
+  rpc DeleteSpaceMember(DeleteSpaceMemberReq) returns (DeleteSpaceMemberRes);
+  // 用户主动退出空间
+  rpc QuitSpaceMember(QuitSpaceMemberReq) returns (QuitSpaceMemberRes);
+  // SearchSpaceMember
+  rpc SearchSpaceMember(SearchSpaceMemberReq) returns (SearchSpaceMemberRes);
+  // 申请加入空间，只有是private空间，需要这个操作
+  rpc AuditApplySpaceMember(AuditApplySpaceMemberReq) returns (AuditApplySpaceMemberRes);
+  // 空间的审核列表，管理者使用
+  rpc AuditListSpaceMember(AuditListSpaceMemberReq) returns (AuditListSpaceMemberRes);
+  // 通过用户，管理者使用
+  rpc AuditPassSpaceMember(AuditPassSpaceMemberReq) returns (AuditPassSpaceMemberRes);
+  // 拒绝原因，并且可以，禁止在申请，管理者使用
+  rpc AuditRejectSpaceMember(AuditRejectSpaceMemberReq) returns (AuditRejectSpaceMemberRes);
+  // 申请加入空间，只有是private空间，需要这个操作
+  rpc AuditMapByIds(AuditMapByIdsReq) returns (AuditMapByIdsRes);
+  // 获取某个用户的空间/分组权限
+  rpc GetSpacePermissionByUid(GetSpacePermissionByUidReq) returns (GetSpacePermissionByUidRes);
+  // 统计信息
+  rpc TotalInfo(TotalInfoReq) returns (TotalInfoRes);
+  // Emoji List
+  rpc EmojiList(EmojiListReq) returns (EmojiListRes);
+  // 生成空间访问授权订单
+  rpc GenSpaceAccessOrder(GenSpaceAccessOrderReq) returns (GenSpaceAccessOrderRes);
+  // 查询是否是指定空间成员
+  rpc GetMemberStatus(GetMemberStatusReq) returns (GetMemberStatusRes);
+  // 修改权限
+  // rpc UpdateSpacePermission(UpdateSpacePermissionReq) returns (UpdateSpacePermissionRes);
+}
+
+message MemberStatus {
+  // 空间guid
+  string spaceGuid = 1;
+  // 用户uid
+  int64 uid = 2;
+  // 用户是否是空间成员
+  bool isMember = 3;
+  // 用户是否可以管理
+  bool isAllowManage = 4;
+}
+
+message TreeSpaceGroup {
+  // GUID
+  string guid = 1;
+  // 名称
+  string name = 2;
+  // 可见级别
+  common.v1.CMN.VISBL visibility = 4;
+  // 是否允许有设置按钮
+  bool isAllowSet = 5;
+  // 是否允许创建下层的空间
+  bool isAllowCreateSpace = 6;
+}
+
+// TreeSpace
+message TreeSpace {
+  // GUID
+  string guid = 1;
+  // 名称
+  string name = 2;
+  // 空间分组guid
+  string spaceGroupGuid = 4;
+  // Icon
+  string icon = 5;
+  // 空间类型
+  common.v1.CMN.APP spaceType = 6;
+  // 空间布局
+  common.v1.SPC.LAYOUT spaceLayout = 7;
+  // 可见级别
+  common.v1.CMN.VISBL visibility = 8;
+  // 成员个数
+  int64 memberCnt = 9;
+  // spaceOptions
+  repeated common.v1.SpaceOption spaceOptions = 10;
+  // 收费类型
+  common.v1.SPC.CT chargeType = 11;
+  // 原始价格
+  int64 originPrice = 12;
+  // 当前价格
+  int64 price = 13;
+  // 空间简介或描述
+  string desc = 14;
+  // 空间头图
+  string headImage = 15;
+  // 空间封面
+  string cover = 16;
+  // 是否允许有设置按钮
+  bool isAllowSet = 17;
+  // 访问设置
+  common.v1.SPC.ACS access = 19;
+  // link信息
+  string link = 20;
+  // emoji列表
+  repeated common.v1.EmojiInfo emojiList = 21;
+}
+
+message ListSpaceAndGroupReq {
+  // 操作者UID
+  int64 operateUid = 1;
+}
+
+message ListSpaceAndGroupRes {
+  // 空间分组列表
+  repeated TreeSpaceGroup spaceGroupList = 1;
+  // space list
+  repeated TreeSpace spaceList = 2;
+}
+
+message GetMemberStatusReq {
+  // 需要查询的uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 空间Guid列表
+  repeated string spaceGuids = 2 [(validate.rules).repeated.min_items = 1];
+}
+
+message GetMemberStatusRes {
+  // 用户空间状态列表
+  repeated MemberStatus list = 1;
+}
+
+message SpaceGroupInfo {
+  // GUID
+  string guid = 1;
+  // 名称
+  string name = 2;
+  // space list
+  repeated common.v1.SpaceInfo list = 3;
+  // 可见级别
+  common.v1.CMN.VISBL visibility = 4;
+  // 是否允许有设置按钮
+  bool isAllowSet = 5;
+  // 是否允许创建下层的空间
+  bool isAllowCreateSpace = 6;
+}
+
+message SpaceInfoReq {
+  // 操作者UID
+  int64 operateUid = 1;
+  // 空间Guid
+  string spaceGuid = 2 [(validate.rules).string.min_len = 1];
+}
+
+message SpaceInfoRes {
+  // space详情
+  common.v1.SpaceInfo spaceInfo = 1;
+}
+
+message ListSpaceInfoReq {
+  // 操作者UID
+  int64 operateUid = 1;
+  // 空间guids
+  repeated string spaceGuids = 2 [(validate.rules).repeated.min_items = 0];
+}
+
+message ListSpaceInfoRes {
+  // 空间列表
+  repeated common.v1.SpaceInfo spaceInfos = 1;
+}
+
+message ListSpaceGuidsByUidReq {
+  // 用户uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+}
+
+message ListSpaceGuidsByUidRes {
+  // 空间Guids
+  repeated string spaceGuids = 1;
+}
+
+message SimpleSpaceInfo {
+  // GUID
+  string spaceGuid = 1;
+  // 名称
+  string name = 2;
+}
+
+message ListPublicSpaceReq {
+  // 用户uid
+  int64 uid = 1;
+}
+
+message ListPublicSpaceRes {
+  // 空间详情
+  repeated SimpleSpaceInfo SimpleSpaceInfo = 1;
+}
+
+// Space 列表
+message ListTreeReq {
+  // 操作者UID
+  int64 operateUid = 1;
+}
+
+// Space 列表
+message ListTreeRes {
+  // Space list
+  repeated AntSpaceGroupInfo tree = 1;
+}
+
+// Space 列表
+message TreeReq {
+  // 操作者UID
+  int64 operateUid = 1;
+}
+
+// Space 列表
+message TreeRes {
+  // Space list
+  repeated AntSpaceGroupInfo tree = 1;
+}
+
+// SpaceGroupInfo
+message AntSpaceGroupInfo {
+  // GUID
+  string guid = 1;
+  // 名称
+  string name = 2;
+  // Icon Type
+  common.v1.FILE.IT iconType = 4;
+  // Icon
+  string icon = 5;
+  // space list
+  repeated AntSpaceInfo children = 6;
+  // 可见级别
+  common.v1.CMN.VISBL visibility = 9;
+  // 是否允许有设置按钮
+  int32 isAllowSet = 10;
+  // 是否允许创建下层的空间
+  int32 isAllowCreateSpace = 11;
+  // 访问设置
+  common.v1.SPC.ACS access = 12;
+}
+
+// AntSpaceInfo
+message AntSpaceInfo {
+  // GUID
+  string guid = 1;
+  // 名称
+  string name = 2;
+  // Icon Type
+  common.v1.FILE.IT iconType = 4;
+  // Icon
+  string icon = 5;
+  // 空间类型
+  common.v1.CMN.APP spaceType = 6;
+  // 空间布局
+  common.v1.SPC.LAYOUT spaceLayout = 7;
+  // 可见级别
+  common.v1.CMN.VISBL visibility = 8;
+  // 是否允许有设置按钮
+  int32 isAllowSet = 9;
+  // 权限
+  common.v1.SPC.ACS access = 10;
+  // Option
+  repeated common.v1.SpaceOption spaceOptions = 11;
+  // HeadImage
+  string headImage = 12;
+  // 链接
+  string link = 13;
+}
+
+// 创建 Space
+message CreateSpaceGroupReq {
+  // 操作者UID
+  int64 operateUid = 1 [(validate.rules).int64.gt = 0];
+  // 空间分组名
+  string name = 2 [(validate.rules).string.min_len = 1];
+  // Icon Type
+  common.v1.FILE.IT iconType = 3;
+  // Icon
+  string icon = 4;
+  // 可见级别
+  common.v1.CMN.VISBL visibility = 5;
+  // 是否允许成员可以查看成员列表
+  bool isAllowReadMemberList = 6;
+}
+
+// 创建 Space Res
+message CreateSpaceGroupRes {
+  // 创建的 Space
+  SpaceGroupInfo info = 1;
+}
+
+// 获取space group信息
+message SpaceGroupInfoReq {
+  // 用户uid
+  int64 uid = 1;
+  // 空间分组guid
+  string spaceGroupGuid = 2 [(validate.rules).string.min_len = 1];
+}
+
+message SpaceGroupInfoRes {
+  // GUID
+  string guid = 1;
+  // 名称
+  string name = 2;
+  // Icon Type
+  common.v1.FILE.IT iconType = 4;
+  // Icon
+  string icon = 5;
+  // space list，这个里面有空间成员个数信息
+  repeated common.v1.SpaceInfo list = 6;
+  // 可见级别
+  common.v1.CMN.VISBL visibility = 9;
+  // 成员个数
+  int64 memberCnt = 10;
+}
+
+// 删除 Space
+message DeleteSpaceGroupReq {
+  // 操作者UID
+  int64 operateUid = 1 [(validate.rules).int64.gt = 0];
+  // 空间分组Guid
+  string spaceGroupGuid = 3 [(validate.rules).string.min_len = 1];
+}
+
+// 删除 Space
+message DeleteSpaceGroupRes {}
+
+// 修改 Space
+message UpdateSpaceGroupReq {
+  // 操作者UID
+  int64 operateUid = 1 [(validate.rules).int64.gt = 0];
+  // 空间分组Guid
+  string spaceGroupGuid = 3 [(validate.rules).string.min_len = 1];
+  // 空间分组名称
+  string name = 4;
+  // Icon Type
+  common.v1.FILE.IT iconType = 5;
+  // Icon
+  string icon = 6;
+  // 可见级别
+  common.v1.CMN.VISBL visibility = 7;
+  // 是否允许成员可以查看成员列表
+  bool isAllowReadMemberList = 8;
+}
+
+// 修改 Space
+message UpdateSpaceGroupRes {}
+
+// 修改 Space 顺序
+message ChangeSpaceGroupSortReq {
+  // 操作者UID
+  int64 operateUid = 1 [(validate.rules).int64.gt = 0];
+  // 空间分组Guid
+  string spaceGroupGuid = 3 [(validate.rules).string.min_len = 1];
+  // 置于其前或者其后的空间分组Guid
+  string targetSpaceGroupGuid = 4;
+  // before or after
+  string dropPosition = 5;
+}
+
+message ChangeSpaceGroupSortRes {}
+
+// 创建 Space
+message CreateSpaceReq {
+  // 操作者UID
+  int64 operateUid = 1 [(validate.rules).int64.gt = 0];
+  // Name
+  string name = 3 [(validate.rules).string.min_len = 1];
+  // 上级group guid
+  string spaceGroupGuid = 4 [(validate.rules).string.min_len = 1];
+  // Icon Type
+  common.v1.FILE.IT iconType = 5;
+  // Icon
+  string icon = 6;
+  // 空间类型
+  common.v1.CMN.APP spaceType = 7;
+  // 空间布局
+  common.v1.SPC.LAYOUT spaceLayout = 8;
+  // 可见级别
+  common.v1.CMN.VISBL visibility = 9;
+  // 链接
+  string link = 10;
+  // 封面
+  string cover = 11;
+}
+
+// 创建 Space Res
+message CreateSpaceRes {
+  // 创建的 Space
+  common.v1.SpaceInfo info = 1;
+}
+
+// 删除 Space
+message DeleteSpaceReq {
+  // 操作者UID
+  int64 operateUid = 1 [(validate.rules).int64.gt = 0];
+  // 空间Guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+}
+
+// 删除 Space
+message DeleteSpaceRes {}
+
+// 修改 Space
+message UpdateSpaceReq {
+  // 操作者UID
+  int64 operateUid = 1 [(validate.rules).int64.gt = 0];
+  // 空间Guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+  // 名称
+  optional string name = 4;
+  // 上级group guid
+  optional string spaceGroupGuid = 5;
+  // Icon Type
+  optional common.v1.FILE.IT iconType = 6;
+  // Icon
+  optional string icon = 7;
+  // 收费类型
+  optional common.v1.SPC.CT chargeType = 8;
+  // 原始价格
+  optional int64 originPrice = 9;
+  // 当前价格
+  optional int64 price = 10;
+  // 空间简介或描述
+  optional string desc = 11;
+  // 空间头图
+  optional string headImage = 12;
+  // 空间封面
+  optional string cover = 13;
+  // 空间类型
+  optional common.v1.CMN.APP spaceType = 14;
+  // 空间布局
+  optional common.v1.SPC.LAYOUT spaceLayout = 15;
+  // 可见级别
+  optional common.v1.CMN.VISBL visibility = 16;
+  // 是否允许查看空间成员
+  optional bool isAllowReadMemberList = 17;
+  // 其他option设置
+  repeated common.v1.SpaceOption spaceOptions = 18;
+  // 访问设置
+  optional common.v1.SPC.ACS access = 19;
+  // 链接
+  optional string link = 20;
+}
+
+// 修改 Space
+message UpdateSpaceRes {}
+
+// 修改 Space 顺序
+message ChangeSpaceSortReq {
+  // 操作者UID
+  int64 operateUid = 1 [(validate.rules).int64.gt = 0];
+  // 空间Guid
+  string spaceGuid = 2 [(validate.rules).string.min_len = 1];
+  // targetFileGuid
+  optional string targetSpaceGuid = 3;
+  // upward or downward
+  optional string dropPosition = 4;
+  // parentFileGuid
+  optional string parentSpaceGroupGuid = 5;
+}
+
+// 修改 Space 顺序
+message ChangeSpaceSortRes {}
+
+message SpaceGroupMemberListReq {
+  // 操作者UID
+  int64 operateUid = 1 [(validate.rules).int64.gt = 0];
+  // 空间分组guid
+  string spaceGroupGuid = 3 [(validate.rules).string.min_len = 1];
+  // 分页
+  common.v1.Pagination pagination = 4;
+  // 指定的uid列表
+  repeated int64 uids = 5;
+}
+
+message SpaceGroupMemberListRes {
+  // MemberRole 列表
+  repeated common.v1.MemberRole list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message AddSpaceGroupMemberReq {
+  // 操作者UID
+  int64 operateUid = 1;
+  // 空间分组Guid
+  string spaceGroupGuid = 2 [(validate.rules).string.min_len = 1];
+  // 增加的用户
+  repeated int64 addUids = 3 [(validate.rules).repeated = {
+    min_items: 1,
+    max_items: 100
+  }];
+}
+
+message AddSpaceGroupMemberRes {}
+
+message DeleteSpaceGroupMemberReq {
+  // 操作者UID
+  int64 operateUid = 1;
+  // 空间分组Guid
+  string spaceGroupGuid = 3 [(validate.rules).string.min_len = 1];
+  // 增加的用户
+  repeated int64 deleteUids = 4 [(validate.rules).repeated = {
+    min_items: 1,
+    max_items: 100
+  }];
+}
+
+message DeleteSpaceGroupMemberRes {}
+
+message SearchSpaceGroupMemberReq {
+  // 操作者UID
+  int64 operateUid = 1 [(validate.rules).int64.gt = 0];
+  // 空间分组guid
+  string spaceGroupGuid = 3 [(validate.rules).string.min_len = 1];
+  // 关键字
+  string keyword = 4 [(validate.rules).string.min_len = 1];
+}
+
+message SearchSpaceGroupMemberRes {
+  // 列表
+  repeated common.v1.MemberRole list = 1;
+}
+
+message SpaceMemberListReq {
+  // 操作者UID
+  int64 operateUid = 1 [(validate.rules).int64.gt = 0];
+  // 空间Guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+  // 分页
+  common.v1.Pagination pagination = 4;
+  // 指定的uid列表
+  repeated int64 uids = 5;
+}
+
+message SpaceMemberListRes {
+  // 用户角色列表
+  repeated common.v1.MemberRole list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message AddSpaceMemberReq {
+  // 操作者UID
+  int64 operateUid = 1;
+  // 空间Guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+  // 增加的用户
+  repeated int64 addUids = 4 [(validate.rules).repeated = {
+    min_items: 1,
+    max_items: 100
+  }];
+}
+
+message AddSpaceMemberRes {}
+
+message DeleteSpaceMemberReq {
+  // 操作者UID
+  int64 operateUid = 1;
+  // 空间Guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+  // 删除的用户
+  repeated int64 deleteUids = 4 [(validate.rules).repeated = {
+    min_items: 1,
+    max_items: 100
+  }];
+}
+
+message DeleteSpaceMemberRes {}
+
+message QuitSpaceMemberReq {
+  // 需要退出的用户UID
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+  // 空间Guid
+  string spaceGuid = 3 [(validate.rules).string.min_len = 1];
+}
+
+message QuitSpaceMemberRes {}
+
+message SearchSpaceMemberReq {
+  // 操作者UID
+  int64 operateUid = 1 [(validate.rules).int64.gt = 0];
+  // 空间Guid
+  string spaceGuid = 2 [(validate.rules).string.min_len = 1];
+  // 关键字
+  string keyword = 3 [(validate.rules).string.min_len = 1];
+}
+
+message SearchSpaceMemberRes {
+  // MemberRole 列表
+  repeated common.v1.MemberRole list = 1;
+}
+
+message AuditApplySpaceMemberReq {
+  // 操作者UID
+  int64 operateUid = 1 [(validate.rules).int64.gt = 0];
+  // 目标guid
+  string targetGuid = 3;
+  // 审核类型
+  common.v1.AUDIT.TYPE auditType = 4 [(validate.rules).enum.const = 3];
+  // 拒绝原因
+  string reason = 5;
+}
+
+message AuditApplySpaceMemberRes {
+  // 用于判断是否直接加入到空间，刷新空间数据
+  int64 bizCode = 1;
+}
+
+message AuditListSpaceMemberReq {
+  // 目标guid
+  string targetGuid = 2;
+  // 审核类型
+  common.v1.AUDIT.TYPE auditType = 3;
+  // 分页
+  common.v1.Pagination pagination = 4;
+}
+
+message AuditListSpaceMemberRes {
+  // AuditMember
+  repeated AuditMember list = 1;
+  // 分页
+  common.v1.Pagination pagination = 2;
+}
+
+message AuditMember {
+  // 审核记录id
+  int64 auditId = 1;
+  // 用户uid
+  int64 uid = 2;
+  // 用户昵称
+  string nickname = 3;
+  // 用户头像
+  string avatar = 4;
+  // 拒绝原因
+  string reason = 5;
+}
+
+message AuditPassSpaceMemberReq {
+  // 操作记录id
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+  // 目标guid
+  string targetGuid = 3;
+  // 审核类型
+  common.v1.AUDIT.TYPE auditType = 4;
+  // 操作人uid
+  int64 operateUid = 5 [(validate.rules).int64.gt = 0];
+  // 操作原因
+  string opReason = 6;
+}
+
+message AuditPassSpaceMemberRes {}
+
+message AuditRejectSpaceMemberReq {
+  // 操作记录id
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+  // 目标guid
+  string targetGuid = 3;
+  // 审核类型
+  common.v1.AUDIT.TYPE auditType = 4;
+  // 操作人uid
+  int64 operateUid = 5 [(validate.rules).int64.gt = 0];
+  // 操作原因
+  string opReason = 6;
+}
+
+message AuditRejectSpaceMemberRes {}
+
+message AuditMapByIdsReq {
+  // 审核记录id列表
+  repeated int64 auditIds = 1 [(validate.rules).repeated.min_items = 1];
+}
+
+message AuditMapByIdsRes {
+  // 审核记录字典
+  map<int64, AuditIndex> auditMap = 1;
+}
+
+message AuditIndex {
+  // 审核记录id
+  int64 auditId = 1;
+  // 审核记录状态
+  common.v1.AUDIT.STATUS status = 2;
+  // 原因
+  string reason = 3;
+  // 操作原因
+  string opReason = 4;
+}
+
+message GetSpacePermissionByUidReq {
+  // 操作者UID
+  int64 operateUid = 1;
+  // 目标guid
+  string targetGuid = 2;
+  // Guid类型
+  common.v1.CMN.GUID guidType = 3;
+}
+
+message GetSpacePermissionByUidRes {
+  // 是否可以查看
+  bool isAllowManage = 1;
+  // 是否可以查看
+  bool isAllowView = 2;
+  // 是否可以写入
+  bool isAllowWrite = 3;
+  // 是否可以写入
+  bool isAllowCreateFile = 4;
+  // 是否为空间成员
+  bool isMember = 5;
+  // 审核状态
+  common.v1.AUDIT.STATUS auditStatus = 6;
+  // 是否允许查看成员列表
+  bool isAllowReadMemberList = 7;
+  // 消息体
+  oneof payload {
+    // 文件
+    SpaceArticlePermission article = 101;
+    // 问题
+    SpaceQuestionPermission question = 102;
+  }
+}
+
+message SpaceArticlePermission {
+  // 是否允许创建
+  bool isAllowCreateFile = 1;
+}
+
+message SpaceQuestionPermission {
+  // 是否允许创建
+  bool isAllowCreateFile = 1;
+}
+
+message TotalInfoReq {
+  // 用户ID
+  int64 uid = 1;
+}
+
+// 统计信息
+message TotalInfoRes {
+  // 空间数
+  int64 spaceCnt = 1;
+}
+
+message EmojiListReq {
+  // 用户id
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+}
+
+message SpaceEmojiList {
+  // 空间guid
+  string spaceGuid = 1;
+  // emoji列表
+  repeated common.v1.EmojiInfo emojiList = 2;
+}
+
+message EmojiListRes {
+  // 某个空间emoji列表
+  repeated SpaceEmojiList spaceList = 1;
+}
+
+message GenSpaceAccessOrderReq {
+  // uid
+  int64 uid = 1 [(validate.rules).int64.gt = 0];
+}
+
+message GenSpaceAccessOrderRes {
+  // 折扣，比如0.9即9折扣,TODO 是否替换成int32？
+  float discount = 1;
+  // 原价
+  int64 originalAmount = 2;
+  // 折扣金额
+  int64 discountAmount = 3;
+  // 计算出来的：交易金额 = 原价 - 折扣金额
+  int64 tradeAmount = 4;
+  // 货币单位
+  string currency = 5;
+  // 货币精度
+  int32 currencyPrecision = 6;
+  // 货币符号
+  string currencySymbol = 7;
+  // 订单sn
+  string orderSn = 8;
+}

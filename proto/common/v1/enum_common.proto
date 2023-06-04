@@ -1,0 +1,172 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "common/v1;commonv1";
+
+// [enum 缩写原则]:
+//   1. 超过4个字母后可以考虑缩写。
+//   2. 省略元音与重复的字母，比如: TarGeT->TGT; NoTiFy -> NTF; STaTuS -> STS;
+//   3. 多个单词组成，可以直接使用首字母，比如 UserAgent -> UA; UserAuthStatus -> UAS;
+//   4. 一定要加上完整英文注释说明，比如 UA 上一行，必须注释『// UA:UserAgent 用户代理』
+// CMN:Common 基础通用枚举值
+message CMN {
+  // UP_TYPE:UploadType 头像使用类型
+  enum UP_TYPE {
+    // 无效枚举值
+    UP_TYPE_INVALID = 0;
+    // 头像
+    UP_TYPE_AVATAR = 1;
+    // 社区
+    UP_TYPE_COMMUNITY = 2;
+    // 空间
+    UP_TYPE_SPACE = 3;
+    // 通用FILE
+    UP_TYPE_FILE = 4;
+    // 通用FILE
+    UP_TYPE_FILE_HEAD_IMAGE = 5;
+    //    // 文章头图
+    //    UP_TYPE_ARTICLE_HEAD_IMAGE = 4;
+    // 问答的图
+    //    UP_TYPE_QUESTION = 5;
+    //    // 活动的图
+    //    UP_TYPE_ACTIVITY = 6;
+    // 社区banner图
+    UP_TYPE_COMMUNITY_BANNER = 8;
+  }
+  // VISBL:Visibility 可见类型
+  enum VISBL {
+    // 无效枚举值
+    VISBL_INVALID = 0;
+    // 互联网公开，完全可见
+    VISBL_PUBLIC = 1;
+    // 社区内公开
+    VISBL_INTERNAL = 2;
+    // 可以看见，需要点击后发出申请，审核通过加入
+    // VISBL_PRIVATE = 3;
+    // 不能看见，仅管理员邀请到该空间
+    VISBL_SECRET = 3;
+    // 草稿模式
+    VISBL_DRAFT = 4;
+  }
+  // BIZ:BizType 业务类型，我们需要仔细定义这个类型，因为这涉及到我们如何发货，开通权限等
+  // 我们需要统一所有类型，否则转换起来就是坑爹
+  enum BIZ {
+    // 未定义
+    BIZ_INVALID = 0;
+    // 文章
+    BIZ_ARTICLE = 1;
+    // 问题
+    BIZ_QUESTION = 2;
+    // 回答
+    BIZ_ANSWER = 3;
+    // 社区
+    BIZ_COMMUNITY = 5;
+    // 空间
+    BIZ_SPACE = 6;
+    // 用户
+    BIZ_USER = 7;
+    // 评论
+    BIZ_COMMENT = 11;
+    // 社区年度会员
+    BIZ_COMMUNITY_ANNUAL_MEMBER = 12;
+    // 专栏
+    BIZ_COLUMN = 13;
+  }
+  // GUID:Guid Guid类型
+  enum GUID {
+    // 未定义
+    GUID_INVALID = 0;
+    // SPACE
+    GUID_SPACE = 1;
+    // SPACE_GROUP
+    GUID_SPACE_GROUP = 2;
+    // TOPIC
+    GUID_FILE = 3;
+    // COMMENT
+    GUID_COMMENT = 4;
+  }
+  // PUSH_CHANNEL:PushChannel 推送渠道
+  enum PUSH_CHANNEL {
+    // 未知类型
+    PUSH_CHANNEL_INVALID = 0;
+    // 推送所有渠道
+    PUSH_CHANNEL_ALL = 1;
+    // 邮箱
+    PUSH_CHANNEL_EMAIL = 2;
+    // 浏览器
+    PUSH_CHANNEL_BROWSER = 3;
+    // APP推送
+    PUSH_CHANNEL_APP = 4;
+  }
+  // INVITE:Invitation 邀请类型
+  enum INVITE {
+    // 未知类型
+    INVITE_INVALID = 0;
+    // 注册
+    INVITE_REGISTER = 1;
+  }
+  // RISK_REPORT:RiskReport 举报类型枚举
+  enum RISK_REPORT {
+    // 无效类型
+    RISK_REPORT_INVALID = 0;
+    // 政治敏感
+    RISK_REPORT_POLITICALLY_SENSITIVE = 1;
+    // 疑似诈骗
+    RISK_REPORT_SUSPECTED_FRAUD = 2;
+    // 低俗色情
+    RISK_REPORT_VULGAR_PORN = 3;
+    // 抄袭／侵权
+    RISK_REPORT_PLAGIARISM = 4;
+    // 垃圾广告
+    RISK_REPORT_SPAM_ADVERTISEMENT = 5;
+    // 其他原因
+    RISK_REPORT_OTHERS = 6;
+    // 网络暴力
+    RISK_REPORT_CYBER_VIOLENCE = 7;
+  }
+  // MEDAL_TYPE:MedalType 勋章类型
+  enum MEDAL_TYPE {
+    // 未知类型
+    MEDAL_TYPE_INVALID = 0;
+    // 永久勋章
+    MEDAL_TYPE_FOREVER = 1;
+    // 有效期勋章
+    MEDAL_TYPE_VALID_TIME = 2;
+  }
+  // COLL_VISBL:CollectionVisible 收藏可见类型
+  enum COLL_VISBL {
+    // 未知类型
+    COLL_VISBL_INVALID = 0;
+    // 自己可见
+    COLL_VISBL_SELF = 1;
+    // 粉丝可见
+    COLL_VISBL_FANS = 2;
+    // 公开
+    COLL_VISBL_PUBIC = 3;
+  }
+  // FILE_SORT:文件排序类型
+  enum FILE_SORT {
+    // 无效
+    SORT_INVALID = 0;
+    // 创建时间
+    SORT_CREATE_TIME = 1;
+    // 最热
+    SORT_HOT_SCORE = 2;
+    // 推荐
+    SORT_RECOMMEND_SCORE = 3;
+  }
+  // APP 应用APP
+  enum APP {
+    // 无效应用
+    APP_INVALID = 0;
+    // 文章
+    APP_ARTICLE = 1;
+    // 问答
+    APP_QA = 2;
+    // 专栏
+    APP_COLUMN = 6;
+    // Course
+    APP_LINK = 9;
+  }
+}

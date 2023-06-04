@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "common/v1;commonv1";
+
+// [enum 缩写原则]:
+//   1. 超过4个字母后可以考虑缩写。
+//   2. 省略元音与重复的字母，比如: TarGeT->TGT; NoTiFy -> NTF; STaTuS -> STS;
+//   3. 多个单词组成，可以直接使用首字母，比如 UserAgent -> UA; UserAuthStatus -> UAS;
+//   4. 一定要加上完整英文注释说明，比如 UA 上一行，必须注释『// UA:UserAgent 用户代理』
+
+// CMT:Community 社区相关枚举值
+message CMT {
+  enum MS {
+    // 无效枚举值
+    MS_INVALID = 0;
+    // 已邀请
+    MS_INVITED = 1;
+    // 已接受
+    MS_ACCEPTED = 2;
+    // 已拒绝
+    MS_REJECTED = 3;
+    // 申请加入，审核中
+    MS_APPLY_JOIN_AUDITING = 4;
+    // 申请加入，审核中
+    MS_APPLY_JOIN_AUDIT_REJECT = 5;
+  }
+  // ROLE:Role 社区角色
+  enum ROLE {
+    // 未知状态
+    ROLE_INVALID = 0;
+    // Owner
+    ROLE_OWNER = 1;
+    // 管理者
+    ROLE_ADMIN = 2;
+    // 成员
+    ROLE_MEMBER = 3;
+    // Guest
+    ROLE_GUEST = 4;
+  }
+  // IS:InvitationStatus 邀请状态
+  enum IS {
+    // 未知状态
+    IS_INVALID = 0;
+    // 邀请中
+    IS_INVITING = 1;
+    // 已邀请成功
+    IS_ACCEPTED = 2;
+    // 邀请被拒绝
+    IS_REJECTED = 3;
+    // 邀请被取消
+    IS_CANCELED = 4;
+    // 邀请过期
+    IS_EXPIRED = 5;
+  }
+  // AS:AuditStatus 团队审核状态
+  enum AS {
+    // 未知状态
+    AS_INVALID = 0;
+    // 已申请
+    AS_APPLIED = 1;
+    // 已通过
+    AS_PASSED = 2;
+    // 已拒绝
+    AS_REJECTED = 3;
+  }
+  // DU:DurationUnit 时长单位
+  enum DU {
+    // 无效枚举值
+    DU_INVALID = 0;
+    // 计算时长为：秒
+    DU_SECOND = 1;
+    // 计算时长为：天
+    DU_DAY = 2;
+    // 计算时长为：月
+    DU_MONTH = 3;
+    // 计算时长为：年
+    DU_YEAR = 4;
+  }
+  // Access:可访问配置
+  enum ACS {
+    // 未知类型
+    ACS_INVALID = 0;
+    // 可公开访问，（管理员仍可手动添加），任何能进入到社区的用户都能wei访问此社区
+    ACS_OPEN = 1;
+    // 外部用户禁止进入社区（管理员仍可手动添加）
+    ACS_DENY_ALL = 2;
+    // 私密访问，外部用户主动申请（管理员仍可手动添加），才能加入此社区
+    ACS_USER_APPLY = 3;
+    // 私密访问，外部用户购买资格（管理员仍可手动添加），才能加入此社区
+    ACS_USER_PAY = 4;
+  }
+}

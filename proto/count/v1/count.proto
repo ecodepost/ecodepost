@@ -1,0 +1,363 @@
+syntax = "proto3";
+
+package count.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum_common.proto";
+import "common/v1/enum_count.proto";
+import "validate/validate.proto";
+
+option go_package = "count/v1;countv1";
+
+// 计数服务, Fid:FromID, Tid:TargetID, Target:目标计数相关值
+service Count {
+  // Set 增加计数关系 add、subtract、update
+  // 使用场景：源用户A Follow 目标用户B；此时A是B的Follower，B是A的Followee
+  rpc Set(SetReq) returns (SetRes);
+  // GetTdetailsByTids 批量获取多个 tid 的指定业务动作计数结果
+  // 使用场景：查询多个用户(B\B1\B2...)的计数详情列表
+  //         查询A对多个用户(B\B1\B2...)的动作状态(是否Follow)
+  rpc GetTdetailsByTids(GetTdetailsByTidsReq) returns (GetTdetailsByTidsRes);
+  // GetTdetailsByFid 批量获取 fid 的指定业务动作计数结果
+  // 使用场景：查询用户A的Followings列表
+  rpc GetTdetailsByFid(GetTdetailsByFidReq) returns (GetTdetailsByFidRes);
+  // GetFidsByTid 获取单个 tid 的指定业务动作 fids
+  // 使用场景：查询用户B的Followers计数详情列表,及用户A对每个B状态(TODO 拆分成两个rpc)
+  rpc GetFidsTdetailByTid(GetFidsTdetailByTidReq) returns (GetFidsTdetailByTidRes);
+  // [暂无需使用] BatchGetTdetails 批量获取 tid 指定业务动作计数结果
+  // 使用场景：查询多个用户被Follow总数和被Watch总数
+  rpc GetTnumByBaksAndTids(GetTnumByBaksAndTidsReq) returns (GetTnumByBaksAndTidsRes);
+  // 类似 GetTdetailsByFid，不过是从数据库查询，可以查询完整列表
+  // 使用场景：查询一个用户的Following列表，列表包含每个following的详情数据
+  rpc DBGetTdetailsByFid(DBGetTdetailsByFidReq) returns (DBGetTdetailsByFidRes);
+  // 类似 GetFidsTdetailByTid，不过是从数据库查询，可以查询完整列表
+  // 使用场景：查询一个用户的Followers ids，如果需要查询follower的详情数据，需要使用DBGetTdetailsByFid接口
+  rpc DBGetFidsTdetailByTid(DBGetFidsTdetailByTidReq) returns (DBGetFidsTdetailByTidRes);
+  // 使用场景：查询多个用户(A\A1\A2...)的TargetNum
+  rpc GetTnumByFids(GetTnumByFidsReq) returns (GetTnumByFidsRes);
+}
+
+// 目标的某个ACT计数详情
+message Tdetail {
+  // 业务目标id(比如:评论id，资讯id)
+  string tid = 1;
+  // 业务计数总数
+  int64 num = 2;
+  // 业务真实计数总数
+  int64 realNum = 3;
+  // 返回当前状态值 (如是否收藏,是否关注) 0:未记录,1:已操作 2:已撤销操作
+  int32 status = 4;
+  // 业务来源id(比如用户id)
+  repeated string fids = 5;
+}
+
+message MsgEvent {
+  // fid 业务来源id(比如用户id、文章id、活动id) (必填)
+  string fid = 2;
+  // tid 业务目标id(比如评论id，资讯id) (必填)
+  string tid = 3;
+  // 业务类型
+  common.v1.CMN.BIZ biz = 4;
+  // 动作类型 (必填)
+  common.v1.CNT.ACT act = 5;
+  // val 增量值，如果是ADD/SUB则val值固定为1; 如果是RESET，则val值将被忽略; 如果是UPDATE，则val为正数表示增加多少，val为复数表示减少多少
+  int32 val = 7;
+  // cycle 榜单型计算周期，如果count_type=3时，cycle必填，默认空 (可选)
+  string cycle = 8;
+  // 消息创建时间
+  int64 msgTime = 9;
+}
+
+message SetReq {
+  // 业务来源id(比如用户id) (必填)
+  string fid = 1 [(validate.rules).string.min_len = 1];
+  // 业务目标id(比如评论id，资讯id) (必填)
+  string tid = 2 [(validate.rules).string.min_len = 1];
+  // 业务类型区分 比如(文章、活动) (必填)
+  common.v1.CMN.BIZ biz = 3;
+  // 动作类型
+  common.v1.CNT.ACT act = 4;
+  // 动作指令，1:增加 2:减少 3:取消操作 4:直接更新 5:重置用户所有关系,慎用(会清空用户所有的操作记录) (必填)
+  common.v1.CNT.ACTI acti = 5;
+  // val 计数更新值，如果是ADD/SUB则val值固定为1，如果是RESET，则val值固定将被忽略，如果是UPDATE，则val有效
+  int32 val = 6;
+  // 操作来源ip (必填)
+  string ip = 7;
+  // 客户端类型 (可选)
+  string ct = 8;
+  // 用户设备id (可选)
+  string did = 9;
+  // maxVal (可选) 默认：0,不限制  计数最大值，当计数超过阈值时接口响应失败
+  int32 maxVal = 11;
+}
+
+message SetRes {
+  // 业务来源id(比如用户id)
+  string fid = 1;
+  // 业务目标id(比如评论id，资讯id)
+  string tid = 2;
+  // 返回当前计数值
+  int64 num = 3;
+  // realNum 真实数
+  int64 realNum = 4;
+  // 返回当前状态值 (如是否收藏,是否关注) 0:未记录,1:已操作 2:已撤销操作
+  int32 status = 5;
+}
+
+message GetTdetailsByTidsReq {
+  // 业务来源id(比如用户id)(可选:来源ID不为空则返回当前来源ID的add/sub状态)
+  string fid = 1;
+  // 业务目标id(比如评论id，资讯id) (必填)
+  repeated string tids = 2;
+  // 业务类型区分 比如(圈子评论计数,圈子收藏计数) (必填)
+  common.v1.CMN.BIZ biz = 3;
+  // 动作类型
+  common.v1.CNT.ACT act = 4;
+  // 业务目标id(比如评论id，资讯id)对应的来源ID列表长度限制 (必填)
+  int32 maxFids = 6;
+}
+
+message GetTdetailsByTidsRes {
+  // 结果map,<tid>:<Target>
+  map<string, Tdetail> map = 1;
+}
+
+message GetTdetailsByFidReq {
+  // 业务来源id(比如用户id) (必填)
+  string fid = 1 [(validate.rules).string.min_len = 1];
+  // 业务类型区分 比如(圈子评论计数,圈子收藏计数) (必填)
+  common.v1.CMN.BIZ biz = 2;
+  // 动作类型
+  common.v1.CNT.ACT act = 3;
+  // 偏移量 (必填)
+  int32 offset = 5;
+  // 查询条数 (必填)
+  int32 limit = 6;
+}
+
+message GetTdetailsByFidRes {
+  // 结果list
+  repeated Tdetail list = 1;
+}
+
+message GetFidsTdetailByTidReq {
+  // 业务来源id(比如用户id)(可选:来源ID不为空则返回当前来源ID的add/sub状态)
+  string fid = 1;
+  // 业务目标id(比如评论id，资讯id)(必填)
+  string tid = 2 [(validate.rules).string.min_len = 1];
+  // 业务类型区分 比如(圈子评论计数,圈子收藏计数)(必填)
+  common.v1.CMN.BIZ biz = 3;
+  // 动作类型
+  common.v1.CNT.ACT act = 4;
+  // 偏移量 (必填)
+  int32 offset = 6;
+  // 查询条数 (必填)
+  int32 limit = 7;
+}
+
+// GetFidsTdetailByTidRes 即 Tdetail
+message GetFidsTdetailByTidRes {
+  // 业务目标id(比如:评论id，资讯id)
+  string tid = 1;
+  // 业务计数总数
+  int64 num = 2;
+  // 业务真实计数总数
+  int64 realNum = 3;
+  // 返回当前状态值 (如是否收藏,是否关注) 0:未记录,1:已操作 2:已撤销操作
+  int32 status = 4;
+  // 业务来源id(比如用户id)
+  repeated string fids = 5;
+}
+
+// 业务动作唯一key
+message BAK {
+  // 业务类型
+  common.v1.CMN.BIZ biz = 1;
+  // 动作类型
+  common.v1.CNT.ACT act = 2;
+}
+
+message GetTnumByBaksAndTidsReq {
+  // 业务目标id(比如评论id，资讯id)(必填)["xxxxx","bbbbbbb]
+  repeated string tids = 1;
+  // 动作唯一Key列表
+  repeated BAK baks = 2 [(validate.rules).repeated.min_items = 1];
+}
+
+// 目标多种ACT计数值
+message TargetActsCount {
+  // key: bizKey: <biz>_<act>
+  // val: 计数值
+  map<string, uint64> map = 1;
+}
+
+message GetTnumByBaksAndTidsRes {
+  // 响应结果信息, key:tid
+  map<string, TargetActsCount> map = 1;
+}
+
+message GetTanumReq {
+  // 业务目标id(比如评论id，资讯id)(必填)
+  string tid = 1;
+  // 业务类型区分 比如(圈子评论计数,圈子收藏计数)(必填) "rec","browse","collect"
+  common.v1.CMN.BIZ biz = 2;
+  // 动作类型
+  common.v1.CNT.ACT act = 3;
+}
+
+message GetTanumRes {
+  // 业务计数总数
+  int64 num = 1;
+  // 业务真实计数总数
+  int64 realNum = 2;
+}
+
+message TidList {
+  // tids 列表
+  repeated string list = 1;
+}
+
+message BatchGetTidRealNumReq {
+  // key:Bak 业务类型区分,比如(文章收藏计数,文章点赞计数)(必填) "<biztype>.<act>"
+  map<string, TidList> BakToTids = 1;
+}
+
+// Tanum:TargetAllNum 目标所有计数
+message Tanum {
+  // 业务计数总数
+  int64 num = 2;
+  // 业务真实计数总数
+  int64 realNum = 1;
+}
+
+message TidToTanum {
+  // key:tid
+  map<string, Tanum> map = 1;
+}
+
+message BatchGetTidRealNumRes {
+  // key:Bak
+  map<string, TidToTanum> map = 1;
+}
+
+message GetFidsByTidDetailReq {
+  // 业务来源id(比如用户id)(可选:来源ID不为空则返回当前来源ID的add/sub状态)
+  string fid = 1;
+  // 业务目标id(比如评论id，资讯id)(必填)
+  string tid = 2;
+  // 业务类型区分 比如(圈子评论计数,圈子收藏计数)(必填)
+  common.v1.CMN.BIZ biz = 3;
+  // 动作类型
+  common.v1.CNT.ACT act = 4;
+  // feed流通用翻页
+  common.v1.Pagination page = 6;
+}
+
+message GetFidsByTidDetailRes {
+  // 响应结果
+  repeated GetFidsByTidDetailItem list = 1;
+}
+
+message GetFidsByTidDetailItem {
+  // 业务来源id(比如用户id)
+  string fid = 1;
+  // 操作时间
+  int64 actTime = 2;
+}
+
+message GetFidToTidsStatusReq {
+  // 业务来源id
+  string fid = 1;
+  // 业务目标id(比如评论id，资讯id) (必填)
+  repeated string tids = 2;
+  // 业务类型区分 比如(圈子评论计数,圈子收藏计数) (必填)
+  common.v1.CMN.BIZ biz = 4;
+  // 动作类型
+  common.v1.CNT.ACT act = 5;
+  // 业务来源id(比如用户id)
+  // 是否需要战士目标的点赞来源列表
+  bool needFids = 6;
+  // needFids = true 时有效，不支持翻页，最大获取最近200个
+  int32 limit = 7;
+}
+
+message GetFidToTidsStatusRes {
+  // 响应结构 map<target_id,StatusItem>
+  map<string, GetFidToTidsStatus> map = 1;
+}
+
+message GetFidToTidsStatus {
+  // 业务来源id
+  string fid = 1;
+  // target_id 目标ID
+  string tid = 2;
+  // 业务计数总数
+  int64 num = 3;
+  // 业务真实计数总数
+  int64 realNum = 4;
+  // 返回当前状态值 (如是否收藏,是否关注) 0:未记录,1:已操作 2:已撤销操作
+  int32 status = 5;
+  // form_id_list 目标点赞来源列表
+  repeated string fids = 6;
+}
+
+message DBGetTdetailsByFidReq {
+  // 业务来源id(比如用户id) (必填)
+  string fid = 1 [(validate.rules).string.min_len = 1];
+  // 业务类型区分 比如(圈子评论计数,圈子收藏计数) (必填)
+  common.v1.CMN.BIZ biz = 2;
+  // 动作类型
+  common.v1.CNT.ACT act = 3;
+  // 分页
+  common.v1.Pagination pagination = 5;
+}
+
+message DBGetTdetailsByFidRes {
+  // 结果list
+  repeated Tdetail list = 1;
+  // Tdetail 的分页数据
+  common.v1.Pagination pagination = 5;
+}
+
+message DBGetFidsTdetailByTidReq {
+  // 业务来源id(比如用户id)(可选:来源ID不为空则返回当前来源ID的add/sub状态)
+  string fid = 1;
+  // 业务目标id(比如评论id，资讯id)(必填)
+  string tid = 2 [(validate.rules).string.min_len = 1];
+  // 业务类型区分 比如(圈子评论计数,圈子收藏计数)(必填)
+  common.v1.CMN.BIZ biz = 3;
+  // 动作类型
+  common.v1.CNT.ACT act = 4;
+  // 分页
+  common.v1.Pagination pagination = 6;
+}
+
+// GetFidsTdetailByTidRes 即 Tdetail
+message DBGetFidsTdetailByTidRes {
+  // 业务目标id(比如:评论id，资讯id)
+  string tid = 1;
+  // 业务计数总数
+  int64 num = 2;
+  // 业务真实计数总数
+  int64 realNum = 3;
+  // 返回当前状态值 (如是否收藏,是否关注) 0:未记录,1:已操作 2:已撤销操作
+  int32 status = 4;
+  // 业务来源id(比如用户id)
+  repeated string fids = 5;
+  // fids 的分页数据
+  common.v1.Pagination pagination = 6;
+}
+
+message GetTnumByFidsReq {
+  // 来源id列表
+  repeated string fids = 1;
+  // 业务类型区分 比如(圈子评论计数,圈子收藏计数) (必填)
+  common.v1.CMN.BIZ biz = 2;
+  // 动作类型
+  common.v1.CNT.ACT act = 3;
+}
+
+message GetTnumByFidsRes {
+  // 结果map,<fid>:<Num>
+  map<string, int64> map = 1;
+}
