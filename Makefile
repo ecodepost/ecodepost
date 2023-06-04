@@ -25,9 +25,15 @@ run_all_askuy:
 	@cd $(APP_PATH) && rm -f resource-svc.sock
 	@cd $(APP_PATH) && go run main.go --config=config/local-askuy.toml
 
+run_all_zhengfke:export EGO_DEBUG=true
+run_all_zhengfke:
+	@cd $(APP_PATH) && rm -f user-svc.sock
+	@cd $(APP_PATH) && rm -f resource-svc.sock
+	@cd $(APP_PATH) && go run main.go --config=config/local-zhengfke.toml
+
 install:export EGO_DEBUG=true
 install:
-	@cd $(APP_PATH) && go run ain.go --config=config/local.toml --job=install
+	@cd $(APP_PATH) && go run main.go --config=config/local.toml --job=install
 
 init:export EGO_DEBUG=true
 init:
