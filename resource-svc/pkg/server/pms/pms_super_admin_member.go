@@ -75,29 +75,3 @@ func (GrpcServer) DeleteManagerMember(ctx context.Context, req *pmsv1.DeleteMana
 	})
 	return &pmsv1.DeleteManagerMemberRes{}, nil
 }
-
-//
-//// GetManagerMemberList 获取管理员的成员列表
-//func (GrpcServer) GetManagerMemberList(ctx context.Context, req *pmsv1.GetManagerMemberListReq) (*pmsv1.GetManagerMemberListRes, error) {
-//	superAdminMembers := make(mysql.PmsSuperAdminMembers, 0)
-//	err := invoker.Db.WithContext(ctx).Where("cmt_guid = ?", req.GetCmtGuid()).Find(&superAdminMembers).Error
-//	if err != nil {
-//		return nil, errcodev1.ErrDbError().WithMessage("GetManagerMemberList fail, err: " + err.Error())
-//	}
-//
-//	uids := make([]int64, 0)
-//	for _, value := range superAdminMembers {
-//		uids = append(uids, value.Uid)
-//	}
-//	uMap, err := invoker.GrpcCommunity.MapUserInfo(ctx, &communityv1.MapUserInfoReq{
-//		UidList: uids,
-//		CmtGuid: req.GetCmtGuid(),
-//	})
-//	if err != nil {
-//		return nil, errcodev1.ErrDbError().WithMessage("MemberList Fail, err: " + err.Error())
-//	}
-//
-//	return &pmsv1.GetManagerMemberListRes{
-//		List: superAdminMembers.ToPb(uMap.GetUserMap()),
-//	}, nil
-//}

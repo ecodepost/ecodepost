@@ -44,6 +44,10 @@ func (GrpcServer) GetManagerMemberList(ctx context.Context, req *pmsv1.GetManage
 	if err != nil {
 		return nil, errcodev1.ErrDbError().WithMessage("GetManagerMemberList fail, err: " + err.Error())
 	}
+	if len(superAdminMembers) == 0 {
+		return nil, errcodev1.ErrNotFound().WithMessage("GetManagerMemberList not found")
+
+	}
 
 	uids := make([]int64, 0)
 	for _, value := range superAdminMembers {

@@ -1,15 +1,19 @@
 package community
 
 import (
+	"errors"
+
 	"ecodepost/bff/pkg/dto"
 	"ecodepost/bff/pkg/invoker"
 	"ecodepost/bff/pkg/server/bffcore"
 	"ecodepost/bff/pkg/service"
 	commonv1 "ecodepost/pb/common/v1"
 	communityv1 "ecodepost/pb/community/v1"
+	errcodev1 "ecodepost/pb/errcode/v1"
 	pmsv1 "ecodepost/pb/pms/v1"
 	userv1 "ecodepost/pb/user/v1"
 	"github.com/gotomicro/ego/core/econf"
+	"github.com/gotomicro/ego/core/eerrors"
 )
 
 type UpdateRequest struct {
@@ -101,10 +105,17 @@ func ListCovers(c *bffcore.Context) {
 
 func Managers(c *bffcore.Context) {
 	res, err := invoker.GrpcPms.GetManagerMemberList(c.Ctx(), &pmsv1.GetManagerMemberListReq{})
-	if err != nil {
+	egoErr := eerrors.FromError(err)
+	if err != nil && !errors.Is(egoErr, errcodev1.ErrNotFound()) {
 		c.EgoJsonI18N(err)
 		return
 	}
+
+	if errors.Is(egoErr, errcodev1.ErrNotFound()) {
+		c.JSONOK([]struct{}{})
+		return
+	}
+
 	c.JSONOK(res)
 }
 
