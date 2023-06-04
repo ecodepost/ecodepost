@@ -46,17 +46,6 @@ func (list PmsRoles) ToRoleIds() []int64 {
 	return output
 }
 
-// GetPmsManagerRoleCnt 获取role信息，如果不存在自动创建
-func GetPmsManagerRoleCnt(db *gorm.DB, cmtGuid string) (cnt int64, err error) {
-	// 根据社区id和role type，找到对应的role id
-	err = db.Model(PmsSuperAdminMember{}).Where("cmt_guid = ?", cmtGuid).Count(&cnt).Error
-	if err != nil {
-		err = fmt.Errorf("GetPmsManagerRoleCnt fail, err: %w", err)
-		return
-	}
-	return
-}
-
 // GetPmsRoles 获取role list
 func GetPmsRoles(db *gorm.DB) (roleInfo PmsRoles, err error) {
 	// 根据社区id和role type，找到对应的role id

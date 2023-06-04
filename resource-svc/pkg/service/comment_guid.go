@@ -98,7 +98,7 @@ func ReplyCommentByGuid(ctx context.Context, req *commentv1.CreateReq) (*comment
 		})
 	}
 
-	err = invoker.CommentDb.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err = invoker.Db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// 悲观锁，防止楼层混乱
 		resp, err := dao.CommentIndex.InfoXLock(
 			tx,
@@ -159,7 +159,7 @@ func ReplyCommentByGuid(ctx context.Context, req *commentv1.CreateReq) (*comment
 
 	//	go func() {
 	//		token := uuid.NewV4().String()
-	//		invoker.CommentRedis.SetEX(ctx, "/comment/audit/"+token, req.GetCommentGuid(), 24*time.Hour)
+	//		invoker.Redis.SetEX(ctx, "/comment/audit/"+token, req.GetCommentGuid(), 24*time.Hour)
 	//		Dingtalk.SendAlarmToken(ctx, "回复评论", `
 	//		* 用户uid:`+cast.ToString(req.Uid)+`
 	//		* 主题id:`+cast.ToString(req.GetBizGuid())+`

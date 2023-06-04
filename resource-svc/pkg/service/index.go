@@ -27,7 +27,7 @@ func (indexService) GetContentKeyByGuid(commentGuid string) string {
 }
 
 func (i *indexService) DelIndexContentCacheGuid(ctx context.Context, commentGuid string) {
-	invoker.CommentRedis.Del(ctx, i.GetContentKeyByGuid(commentGuid))
+	invoker.Redis.Del(ctx, i.GetContentKeyByGuid(commentGuid))
 }
 
 func (i *indexService) GetIndexListByMySQLByGuid(ctx context.Context, subjectId int64, page *commonv1.Pagination) (indexGuids []string, respList map[string]*commentv1.CommentDetail, err error) {
@@ -112,7 +112,7 @@ func (i *indexService) GetCommentInfoByCacheByGuid(ctx context.Context, indexGui
 		cacheKeyList = append(cacheKeyList, i.GetContentKeyByGuid(indexGuid))
 		cacheKeyMapToId[i.GetContentKeyByGuid(indexGuid)] = indexGuid
 	}
-	commentList, err := invoker.CommentRedis.MGet(ctx, cacheKeyList)
+	commentList, err := invoker.Redis.MGet(ctx, cacheKeyList)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (i *indexService) GetCommentInfoByCacheByGuid(ctx context.Context, indexGui
 
 	// 回源
 	if len(needSqlQueryIds) > 0 {
-		indexList, err := dao.CommentIndexListByGuids(invoker.CommentDb.WithContext(ctx), needSqlQueryIds)
+		indexList, err := dao.CommentIndexListByGuids(invoker.Db.WithContext(ctx), needSqlQueryIds)
 		if err != nil {
 			return nil, err
 		}
@@ -151,7 +151,7 @@ func (i *indexService) GetCommentInfoByCacheByGuid(ctx context.Context, indexGui
 
 	for _, indexGuid := range indexGuids {
 		go func(v string) {
-			invoker.CommentRedis.Expire(ctx, i.GetContentKeyByGuid(v), constx.CommentExpire)
+			invoker.Redis.Expire(ctx, i.GetContentKeyByGuid(v), constx.CommentExpire)
 		}(indexGuid)
 	}
 
@@ -183,14 +183,14 @@ func (i *indexService) GetCommentInfoByCacheByGuid(ctx context.Context, indexGui
 }
 
 func (i *indexService) GetContentDetailByCache(ctx context.Context, commentGuid string) (resp *commentv1.CommentDetail, err error) {
-	res, err := invoker.CommentRedis.Expire(ctx, i.GetContentKeyByGuid(commentGuid), constx.CommentExpire)
+	res, err := invoker.Redis.Expire(ctx, i.GetContentKeyByGuid(commentGuid), constx.CommentExpire)
 	if err != nil {
 		return nil, err
 	}
 	if !res {
 		return nil, CommentInfoNotFound
 	}
-	content, err := invoker.CommentRedis.Get(ctx, i.GetContentKeyByGuid(commentGuid))
+	content, err := invoker.Redis.Get(ctx, i.GetContentKeyByGuid(commentGuid))
 	if err != nil {
 		return nil, err
 	}
@@ -210,7 +210,7 @@ func (i *indexService) SetContentDetailCache(ctx context.Context, commentGuid st
 		return nil, err
 	}
 
-	cContent, err := dao.CommentContent.Detail(invoker.CommentDb.WithContext(ctx), commentGuid)
+	cContent, err := dao.CommentContent.Detail(invoker.Db.WithContext(ctx), commentGuid)
 	if err != nil {
 		return nil, err
 	}
@@ -226,6 +226,6 @@ func (i *indexService) setContentNxByGuid(ctx context.Context, commentGuid strin
 	if msgBytes, err = proto.Marshal(msg); err != nil {
 		return
 	}
-	invoker.CommentRedis.SetEX(ctx, i.GetContentKeyByGuid(commentGuid), msgBytes, constx.CommentContentExpire)
+	invoker.Redis.SetEX(ctx, i.GetContentKeyByGuid(commentGuid), msgBytes, constx.CommentContentExpire)
 	return nil
 }

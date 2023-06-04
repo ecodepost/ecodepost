@@ -1,11 +1,13 @@
 package server
 
 import (
-	job2 "ecodepost/job"
 	communityv1 "ecodepost/pb/community/v1"
 	countv1 "ecodepost/pb/count/v1"
+	loggerv1 "ecodepost/pb/logger/v1"
 	notifyv1 "ecodepost/pb/notify/v1"
 	ssov1 "ecodepost/pb/sso/v1"
+	statv1 "ecodepost/pb/stat/v1"
+	userv1 "ecodepost/pb/user/v1"
 	"ecodepost/sdk/validator"
 	"ecodepost/user-svc/pkg/cron"
 	"ecodepost/user-svc/pkg/invoker"
@@ -19,11 +21,6 @@ import (
 	"ecodepost/user-svc/pkg/server/user"
 	"ecodepost/user-svc/pkg/service"
 	"github.com/gotomicro/ego"
-	"github.com/gotomicro/ego/task/ejob"
-
-	loggerv1 "ecodepost/pb/logger/v1"
-	statv1 "ecodepost/pb/stat/v1"
-	userv1 "ecodepost/pb/user/v1"
 	"github.com/gotomicro/ego/server/egrpc"
 )
 
@@ -33,14 +30,6 @@ func ServeGRPC(app *ego.Ego) *egrpc.Component {
 	srv.Invoker(
 		invoker.Init,
 		service.Init,
-		func() error {
-			app.Job(
-				ejob.Job("init_sso", job2.InitSsoData),
-				ejob.Job("init_system", job2.InitSystem),
-				ejob.Job("update_sso", job2.UpdateSsoData),
-			)
-			return nil
-		},
 		func() error {
 			// 这里有gRPC依赖于invoker里的启动项，需要放到这里
 			// grpc 一个应用，一个连接

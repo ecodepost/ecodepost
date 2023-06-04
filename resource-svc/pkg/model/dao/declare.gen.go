@@ -11,8 +11,8 @@ var (
 )
 
 func InitGen() error {
-	CommentSubject = InitCommentSubject(invoker.Logger, invoker.CommentDb)
-	CommentIndex = InitCommentIndex(invoker.Logger, invoker.CommentDb)
-	CommentContent = InitCommentContent(invoker.Logger, invoker.CommentDb)
+	CommentSubject = InitCommentSubject(invoker.Logger, invoker.Db)
+	CommentIndex = InitCommentIndex(invoker.Logger, invoker.Db)
+	CommentContent = InitCommentContent(invoker.Logger, invoker.Db)
 	return nil
 }

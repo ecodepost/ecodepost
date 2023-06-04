@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	resourcemysql "ecodepost/resource-svc/pkg/model/mysql"
 	"ecodepost/user-svc/pkg/invoker"
 	"ecodepost/user-svc/pkg/model/mysql"
 	"ecodepost/user-svc/pkg/server/stat"
@@ -83,7 +84,7 @@ func AfterUserCreate(ctx context.Context, u *mysql.User) {
 
 // Create 创建用户
 func (GrpcServer) Create(ctx context.Context, req *userv1.CreateReq) (*userv1.CreateRes, error) {
-	// 0 <= 随机数<= 30, 创建用户随机一个头像, 比如：https://cdn.gocn.vip/ava/24.png
+	// 0 <= 随机数<= 30, 创建用户随机一个头像, 比如：https://xxx/ava/24.png
 	cdn := econf.GetString("user-svc.cdn")
 	ava := cdn + "/ava/" + strconv.Itoa(rand.Intn(30)) + ".png"
 	uObj, err := uuid.NewUUID()
@@ -98,6 +99,12 @@ func (GrpcServer) Create(ctx context.Context, req *userv1.CreateReq) (*userv1.Cr
 		}
 	}
 
+	// 查一次user表，如果user表为空，那么注册的第一条认为是超级管理员
+	var cnt int64
+	err = invoker.Db.Model(mysql.User{}).WithContext(ctx).Count(&cnt).Error
+	if err != nil {
+		return nil, errcodev1.ErrDbError().WithMessage("cnt fail, err: " + err.Error())
+	}
 	data := &mysql.User{
 		Name:       uObj.String(),
 		Password:   pwd,
@@ -105,6 +112,9 @@ func (GrpcServer) Create(ctx context.Context, req *userv1.CreateReq) (*userv1.Cr
 		RegisterIp: req.GetRegisterIp(),
 		Status:     1,
 		Avatar:     ava,
+	}
+	if cnt == 0 {
+		data.IsSuperAdmin = true
 	}
 
 	tx := invoker.Db.WithContext(ctx).Begin()
@@ -131,6 +141,16 @@ func (GrpcServer) Create(ctx context.Context, req *userv1.CreateReq) (*userv1.Cr
 		if err := mysql.UserCreate(tx, data); err != nil {
 			tx.Rollback()
 			return nil, errcodev1.ErrDbError().WithMessage("Create fail, err: " + err.Error())
+		}
+		// todo 跨包引入，先实现逻辑
+		err = tx.Create(&resourcemysql.PmsSuperAdminMember{
+			Uid:        data.Uid,
+			CreatedUid: data.Uid,
+			Ctime:      time.Now().Unix(),
+		}).Error
+		if err != nil {
+			tx.Rollback()
+			return nil, errcodev1.ErrDbError().WithMessage("Pms Super Admin Member Create fail, err: " + err.Error())
 		}
 		// 更新昵称
 		nick, _ := invoker.UserGuid.EncodeRandomInt64(data.Uid)
@@ -222,7 +242,7 @@ func (GrpcServer) OauthInfo(ctx context.Context, req *userv1.OauthInfoReq) (*use
 	}
 	sql, binds := egorm.BuildQuery(conds)
 	var info mysql.User
-	err := invoker.Db.WithContext(ctx).Select("uid,nickname,name,email,avatar,identify_status,cmt_identify_status,apply_max_cmt_cnt").Where(sql, binds...).Find(&info).Error
+	err := invoker.Db.WithContext(ctx).Select("uid,nickname,name,email,avatar").Where(sql, binds...).Find(&info).Error
 	if err != nil {
 		return nil, errcodev1.ErrDbError().WithMessage("Info fail, err: " + err.Error())
 	}
@@ -255,7 +275,7 @@ func (GrpcServer) ProfileInfo(ctx context.Context, req *userv1.ProfileInfoReq) (
 
 	var info mysql.User
 
-	err := invoker.Db.WithContext(ctx).Select("uid,nickname,name,email,avatar,identify_status,intro,sex,birthday,ctime").Where(sql, binds...).Find(&info).Error
+	err := invoker.Db.WithContext(ctx).Select("uid,nickname,name,email,avatar,intro,sex,birthday,ctime").Where(sql, binds...).Find(&info).Error
 	if err != nil {
 		return nil, errcodev1.ErrDbError().WithMessage("Info fail, err: " + err.Error())
 	}
@@ -276,7 +296,7 @@ func (GrpcServer) ProfileInfo(ctx context.Context, req *userv1.ProfileInfoReq) (
 // InfoByPhone 根据手机号获取用户信息
 func (GrpcServer) InfoByPhone(ctx context.Context, req *userv1.InfoByPhoneReq) (*userv1.InfoByPhoneRes, error) {
 	var info mysql.User
-	err := invoker.Db.WithContext(ctx).Select("uid,name,nickname,email,avatar,identify_status").Where("phone = ?", req.GetPhone()).Find(&info).Error
+	err := invoker.Db.WithContext(ctx).Select("uid,name,nickname,email,avatar,status").Where("phone = ?", req.GetPhone()).Find(&info).Error
 	if err != nil {
 		return nil, errcodev1.ErrDbError().WithMessage("InfoByPhone fail, err: " + err.Error())
 	}

@@ -51,14 +51,22 @@ enableAccessInterceptor = true
 enableAccessInterceptorReq = true
 enableAccessInterceptorRes = true
 
-# mysql 主配置
-[mysql.default]
-connMaxLifetime = "300s"
-debug = true
-dsn = "root:root@tcp(127.0.0.1:3306)/post_main?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=True&loc=Local&readTimeout=5s&timeout=5s&writeTimeout=5s"
-level = "panic"
-maxIdleConns = 50
-maxOpenConns = 100
+# 客户端配置
+[grpc.user]
+addr = "unix:user-svc.sock"
+balancerName = "round_robin" # 默认值
+dialTimeout = "5s" # 默认值
+readTimeout = "5s" # 默认值
+enableAccessInterceptor = true
+enableAccessInterceptorRes = true
+enableAccessInterceptorReq = true
+
+# 客户端配置
+[grpc.resource]
+addr = "unix:resource-svc.sock"
+balancerName = "round_robin" # 默认值
+dialTimeout = "5s" # 默认值
+readTimeout = "5s" # 默认值
 enableAccessInterceptor = true
 enableAccessInterceptorRes = true
 enableAccessInterceptorReq = true
@@ -73,9 +81,6 @@ host="user-svc.sock"
 enableAccessInterceptor = true
 enableAccessInterceptorRes = true
 enableAccessInterceptorReq = true
-
-[user-svc.server.governor]
-port = 9092
 
 
 
@@ -114,17 +119,6 @@ mode = "local"
 [resource-svc.registry]
 [resource-svc.k8s]
 
-
-
-
-[resource-svc.grpc.usersvc]
-addr = "unix:user-svc.sock"
-#addr = "127.0.0.1:9091"
-balancerName = "round_robin" # 默认值
-dialTimeout = "3s" # 默认值
-enableAccessInterceptor = true
-enableAccessInterceptorRes = true
-enableAccessInterceptorReq = true
 
 [resource-svc.cron.score]
 enable = true
@@ -168,23 +162,6 @@ level = "debug"
 connectTimeout = "3s"
 secure = false
 
-[bff.grpc.user]
-addr = "unix:user-svc.sock"
-balancerName = "round_robin" # 默认值
-dialTimeout = "5s" # 默认值
-readTimeout = "5s" # 默认值
-enableAccessInterceptor = true
-enableAccessInterceptorRes = true
-enableAccessInterceptorReq = true
-
-[bff.grpc.resource]
-addr = "unix:resource-svc.sock"
-balancerName = "round_robin" # 默认值
-dialTimeout = "5s" # 默认值
-readTimeout = "5s" # 默认值
-enableAccessInterceptor = true
-enableAccessInterceptorRes = true
-enableAccessInterceptorReq = true
 
 [bff.sso]
 ssoAddr = "unix:user-svc.sock"

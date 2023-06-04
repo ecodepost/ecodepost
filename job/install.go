@@ -13,7 +13,7 @@ import (
 )
 
 func RunInstall(ctx ejob.Context) error {
-	userDb := egorm.Load("mysql.user").Build()
+	userDb := egorm.Load("mysql").Build()
 	models := []interface{}{
 		&dao.App{},
 		&mysql.CountBehaviorLog{},
@@ -64,7 +64,7 @@ func RunInstall(ctx ejob.Context) error {
 		&resmysql.AuditIndex{},
 		&resmysql.AuditLog{},
 	}
-	mainDb := egorm.Load("mysql.default").Build()
+	mainDb := egorm.Load("mysql").Build()
 
 	err = mainDb.Debug().WithContext(ctx.Ctx).Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(models...)
 	if err != nil {

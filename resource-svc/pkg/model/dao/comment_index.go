@@ -57,7 +57,7 @@ func CommentIndexDelete(ctx context.Context, uid int64, commentGuid string, bizG
 			"guid": commentGuid,
 			"uid":  uid,
 		})
-		err = invoker.CommentDb.WithContext(ctx).Where(sql, binds...).Find(&commentIndexInfo).Error
+		err = invoker.Db.WithContext(ctx).Where(sql, binds...).Find(&commentIndexInfo).Error
 		if err != nil {
 			return
 		}
@@ -67,7 +67,7 @@ func CommentIndexDelete(ctx context.Context, uid int64, commentGuid string, bizG
 			"biz_type":    bizType,
 			"action_type": commonv1.FILE_ACT_EXCELLENT,
 		})
-		err = invoker.CommentDb.WithContext(ctx).Where(sql, binds...).Find(&commentIndexInfo).Error
+		err = invoker.Db.WithContext(ctx).Where(sql, binds...).Find(&commentIndexInfo).Error
 		if err != nil {
 			return
 		}
@@ -81,19 +81,19 @@ func CommentIndexDelete(ctx context.Context, uid int64, commentGuid string, bizG
 	}
 
 	// 故意不要事务的，否则提交到mysql，刚好查询的时候，数据不会变
-	if err = invoker.CommentDb.WithContext(ctx).Model(mysql.CommentIndex{}).Where("id = ?", commentIndexInfo.Id).Updates(map[string]interface{}{
+	if err = invoker.Db.WithContext(ctx).Model(mysql.CommentIndex{}).Where("id = ?", commentIndexInfo.Id).Updates(map[string]interface{}{
 		"dtime": time.Now().Unix(),
 	}).Error; err != nil {
 		return mysql.CommentIndex{}, fmt.Errorf("CommentIndexDeleteX failed,err :%w", err)
 	}
 
-	err = CommentSubject.UpdateExprById(invoker.CommentDb.WithContext(ctx), commentIndexInfo.SubjectId, "cnt_comment", -1)
+	err = CommentSubject.UpdateExprById(invoker.Db.WithContext(ctx), commentIndexInfo.SubjectId, "cnt_comment", -1)
 	if err != nil {
 		return mysql.CommentIndex{}, fmt.Errorf("CommentIndexDeleteX failed2,err :%w", err)
 	}
 	// 根节点
 	if commentIndexInfo.ReplyToGuid == "" {
-		err = CommentSubject.UpdateExprById(invoker.CommentDb.WithContext(ctx), commentIndexInfo.SubjectId, "cnt_root_comment", -1)
+		err = CommentSubject.UpdateExprById(invoker.Db.WithContext(ctx), commentIndexInfo.SubjectId, "cnt_root_comment", -1)
 		if err != nil {
 			return mysql.CommentIndex{}, fmt.Errorf("CommentIndexDeleteX failed2,err :%w", err)
 		}
@@ -152,7 +152,7 @@ func CommentListPage(ctx context.Context, conds egorm.Conds, reqList *commonv1.P
 	}
 	sql, binds := egorm.BuildQuery(conds)
 
-	db := invoker.CommentDb.WithContext(ctx).Table("comment_index").Where(sql, binds...)
+	db := invoker.Db.WithContext(ctx).Table("comment_index").Where(sql, binds...)
 	respList := make([]mysql.CommentIndexPage, 0)
 	db.Count(&reqList.Total)
 	db.Select("guid").Order("id desc").Offset(int((reqList.CurrentPage - 1) * reqList.PageSize)).Limit(int(reqList.PageSize)).Find(&respList)

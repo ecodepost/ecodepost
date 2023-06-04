@@ -169,7 +169,7 @@ enableAccessInterceptor = true
 enableAccessInterceptorRes = true
 enableAccessInterceptorReq = true
 
-[mysql.user]
+[mysql]
 connMaxLifetime = "300s"
 debug = true
 dsn = "root:root@tcp(172.17.245.230:13306)/of_user?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=True&loc=Local&readTimeout=10s&timeout=3s&writeTimeout=3s"
