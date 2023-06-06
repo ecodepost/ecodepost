@@ -1,14 +1,14 @@
 # UI build stage
-FROM node:16-alpine3.14 as js-builder
-
-ENV NODE_OPTIONS=--max_old_space_size=8000
-WORKDIR /ecodepost
-COPY ecodepost-fe .
-WORKDIR /ecodepost/ecodepost-fe
-RUN yarn install --frozen-lockfile
-RUN npm run build
-RUN cp -rf ./dist /ecodepost/dist
-RUN cd ../ && rm -rf ecodepost-fe
+#FROM node:16-alpine3.14 as js-builder
+#
+#ENV NODE_OPTIONS=--max_old_space_size=8000
+#WORKDIR /ecodepost
+#COPY ecodepost-fe .
+#WORKDIR /ecodepost/ecodepost-fe
+#RUN yarn install --frozen-lockfile
+#RUN npm run build
+#RUN cp -rf ./dist /ecodepost/dist
+#RUN cd ../ && rm -rf ecodepost-fe
 
 
 # API build stage

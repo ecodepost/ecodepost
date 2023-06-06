@@ -22,7 +22,14 @@ jobs:
           registry: docker.io
           username: zxmfke
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
+      - name: Run EcodePost-FE
+        run: |
+          git clone https://github.com/ecodepost/ecodepost-fe.git
+          cd ecodepost-fe
+          yarn install --frozen-lockfile
+          yarn run build
+          cp -rf dist ../bff/pkg/server/ui/
+          cd ../ && rm -rf ecodepost-fe
       - name: Build the Docker image
         uses: docker/build-push-action@v3
         with:
