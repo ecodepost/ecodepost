@@ -1,8 +1,12 @@
 package pms
 
 import (
+	"errors"
+
 	"ecodepost/bff/pkg/invoker"
 	"ecodepost/bff/pkg/server/bffcore"
+	errcodev1 "ecodepost/pb/errcode/v1"
+	"github.com/gotomicro/ego/core/eerrors"
 
 	pmsv1 "ecodepost/pb/pms/v1"
 
@@ -30,8 +34,14 @@ func ManagerMemberList(c *bffcore.Context) {
 	resp, err := invoker.GrpcPms.GetManagerMemberList(c.Ctx(), &pmsv1.GetManagerMemberListReq{
 		OperateUid: c.Uid(),
 	})
-	if err != nil {
+	egoErr := eerrors.FromError(err)
+	if err != nil && !errors.Is(egoErr, errcodev1.ErrNotFound()) {
 		c.EgoJsonI18N(err)
+		return
+	}
+
+	if errors.Is(egoErr, errcodev1.ErrNotFound()) {
+		c.JSONOK([]struct{}{})
 		return
 	}
 
