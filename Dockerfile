@@ -34,7 +34,6 @@ COPY sdk sdk
 COPY main.go main.go
 COPY config config
 COPY Makefile Makefile
-COPY --from=js-builder /ecodepost/dist ./bff/pkg/server/ui/dist
 RUN ls -rlt ./bff/pkg/server/ui/dist && make build.api
 
 
