@@ -8,7 +8,6 @@ require (
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.5
 	github.com/alibabacloud-go/tea v1.1.20
 	github.com/aliyun/alibaba-cloud-sdk-go v1.62.231
-	github.com/aliyun/aliyun-oss-go-sdk v2.2.6+incompatible
 	github.com/davecgh/go-spew v1.1.1
 	github.com/ego-component/egorm v1.0.5
 	github.com/ego-component/eguid v0.0.0-20220421022459-56ba4a4735a0
