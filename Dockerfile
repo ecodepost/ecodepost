@@ -33,7 +33,7 @@ WORKDIR /ecodepost
 
 RUN ls -rlt /ecodepost
 
-COPY --from=go-builder /ecodepost/bin/ecodepost ./bin/
+COPY --from=go-builder /ecodepost/../bin/ecodepost ./bin/
 COPY --from=go-builder /ecodepost/config ./config
 
 EXPOSE 9002
