@@ -22,6 +22,7 @@ COPY main.go main.go
 COPY config config
 COPY Makefile Makefile
 RUN ls -rlt ./bff/pkg/server/ui/dist && make build.api
+RUN ls -rlt /ecodepost
 
 
 # Fianl running stage
