@@ -44,17 +44,15 @@ init:
 build.api:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making $@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 	@chmod +x $(SCRIPT_PATH)/build/*.sh
+	@echo ${APP_PATH}
+	@echo ${COMPILE_OUT}
 	@cd $(APP_PATH) && $(SCRIPT_PATH)/build/gobuild.sh $(APP_NAME) $(COMPILE_OUT)
 	@echo -e "\n"
 
 docker.build:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making $@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-
-	@#git clone https://github.com/ecodepost/ecodepost-fe.git
 	@docker build -t ecodepost:latest .
-	@rm -rf ecodepost-fe
-	@echo -e "finish\n"
-
+	@echo -e "\n"
 
 buf:
 	@cd proto && buf generate
