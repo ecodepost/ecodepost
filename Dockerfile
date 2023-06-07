@@ -22,6 +22,7 @@ COPY main.go main.go
 COPY config config
 COPY Makefile Makefile
 RUN ls -rlt ./bff/pkg/server/ui/dist && make build.api
+RUN ls -rlt /ecodepost
 
 
 # Fianl running stage
@@ -29,7 +30,6 @@ FROM alpine:3.14.3
 LABEL maintainer="ecodepost@ecodeclub.member"
 
 WORKDIR /ecodepost
-RUN ls -rlt /ecodepost
 
 COPY --from=go-builder /ecodepost/../bin/ecodepost ./bin/
 COPY --from=go-builder /ecodepost/config ./config
