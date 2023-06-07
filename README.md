@@ -19,8 +19,8 @@ CREATE DATABASE `post_user`;
 ```
 ### 修改配置
 ```toml
-# mysql换成你的ip
-# redis换成你的ip
+# mysql 换成你的 ip
+# redis 换成你的 ip
 ```
 ### 使用指令
 ```bash
