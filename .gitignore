@@ -13,3 +13,4 @@ bff/pkg/server/ui/dist
 config/local-askuy.toml
 config/local-zhengfke.toml
 postimage
+data

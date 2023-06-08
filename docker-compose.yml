@@ -1,0 +1,48 @@
+version: '3'
+networks:
+  ecodepost-net:
+    driver: bridge
+services:
+  mysql:
+    image: mysql:5.7
+    platform: linux/amd64
+    networks:
+      - ecodepost-net
+    environment:
+      MYSQL_ROOT_PASSWORD: ecodepostEclub
+      MYSQL_ROOT_HOST: '%'
+    command: [
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_general_ci',
+      '--port=13306',
+      '--init-file=/data/all-in-one/migration/database.sql',
+    ]
+    ports:
+      - 13306:13306
+    volumes:
+      - ./scripts/migration:/data/all-in-one/migration
+    restart: always
+  redis:
+    image: redis:5.0.14-alpine
+    networks:
+      - ecodepost-net
+    expose:
+      - 6380
+    restart: always
+    command: [ '--port 6380' ]
+  ecodepost:
+    image: zxmfke/ecodepost:latest
+    networks:
+      - ecodepost-net
+    expose:
+      - 9002
+    ports:
+      - "9002:9002"
+    volumes:
+      - ./data/all-in-one/ecodepost/file:/ecodepost/file
+      - ./data/all-in-one/ecodepost/logs:/ecodepost/logs
+      - ./data/all-in-one/ecodepost/conf/local.toml:/ecodepost/local.toml
+    restart: always
+    depends_on:
+      - mysql
+      - redis

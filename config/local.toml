@@ -1,55 +1,42 @@
-# 对象存储
-[oss]
-# 模式：如果简单验证服务，那么选择file
-# alists：使用alists，上传图片，可以大幅度降低成本
-# file: 使用本地此片存储图片
-mode="file"
-bucket="gocn-cdn"
-cdnName="http://localhost:9002"
-prefix="postimage"
-[oss.alists]
-regionId = "cn-beijing"
-accessKeyID = "xxx"
-accessKeySecret = "xxxx"
-roleArn = "acs:ram::xxxx:role/ramosstest"
-policy = '''
-{
-    "Version": "1",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "oss:Put*",
-            "Resource": [
-                "acs:oss:*:*:xxx/postimage/*",
-            ]
-        }
-    ]
-}
-'''
-[oss.file]
-path="./"
-
-# redis 配置
-[redis]
-debug = true # ego增加redis debug，打开后可以看到，配置名、地址、耗时、请求数据、响应数据
-addr = "127.0.0.1:6379"
-db=10
+[app]
+mode = "local"
+# 对外访问的路径
+# 如果前面有nginx，使用nginx的ip port或者域名，nginx proxy upstream写入server.bff.host和server.bff.port
+# 如果前面没有nginx，那么该配置要和 server.bff.host和server.bff.port保持一致
+rootURL = "http://localhost:9002"
+# avatar cdn
+cdn = "http://localhost:9002"
+# server.http 服务
+[server.bff]
+# HTTP server Host
+host = "0.0.0.0"
+# HTTP server Port
+port = 9002
 enableAccessInterceptor = true
-enableAccessInterceptorReq = true
 enableAccessInterceptorRes = true
+enableAccessInterceptorReq = true
+ServerReadTimeout = "10s"
+ServerReadHeaderTimeout = "30s"
+ServerWriteTimeout       = "30s"
+ContextTimeout             ="30s"
+# 只显示API接口
+AccessInterceptorReqResFilter = "request.path.startsWith('/api/')"
+embedPath = "dist"
+maxAge = 86400
 
-# mysql user配置
-[mysql.user]
-connMaxLifetime = "300s"
-debug = true
-dsn = "root:root@tcp(127.0.0.1:3306)/post_user?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=True&loc=Local&timeout=1s&readTimeout=3s&writeTimeout=3s"
-level = "panic"
-maxIdleConns = 50
-maxOpenConns = 100
-enableDetailSQL = true
+[server.user]
+network = "unix"
+host="user-svc.sock"
 enableAccessInterceptor = true
-enableAccessInterceptorReq = true
 enableAccessInterceptorRes = true
+enableAccessInterceptorReq = true
+
+[server.resource]
+network = "unix"
+host="resource-svc.sock"
+enableAccessInterceptor = true
+enableAccessInterceptorRes = true
+enableAccessInterceptorReq = true
 
 # 客户端配置
 [grpc.user]
@@ -71,18 +58,63 @@ enableAccessInterceptor = true
 enableAccessInterceptorRes = true
 enableAccessInterceptorReq = true
 
+# 对象存储
+[oss]
+# 模式：如果简单验证服务，那么选择file
+# alists：使用alists，上传图片，可以大幅度降低成本
+# file: 使用本地此片存储图片
+mode="file"
+bucket="gocn-cdn"
+#cdnName="https://cdn.gocn.vip"
+cdnName="http://localhost:9002"
+prefix="postimage"
+[oss.alists]
+regionId = "cn-beijing"
+accessKeyID = "LTAI5tReEpjDR285oSGZBrW7"
+accessKeySecret = "sr8eptIkWuptNnD28ChiKtWih2GbD4"
+roleArn = "acs:ram::1600609249574749:role/ramosstest"
+policy = '''
+{
+    "Version": "1",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "oss:Put*",
+            "Resource": [
+                "acs:oss:*:*:gocn-cdn/postimage/*",
+                "acs:oss:*:*:gocn-cdn/*",
+                "acs:oss:*:*:of-file-dev/*"
+            ]
+        }
+    ]
+}
+'''
+[oss.file]
+path="./"
+
+# redis 配置
+[redis]
+debug = true # ego增加redis debug，打开后可以看到，配置名、地址、耗时、请求数据、响应数据
+addr = "localhost:6380"
+db=10
+enableAccessInterceptor = true
+enableAccessInterceptorReq = true
+enableAccessInterceptorRes = true
+
+# mysql配置
+[mysql]
+connMaxLifetime = "300s"
+debug = true
+dsn = "root:ecodepostEclub@tcp(127.0.0.1:13306)/ecodepost?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=True&loc=Local&timeout=1s&readTimeout=3s&writeTimeout=3s"
+level = "panic"
+maxIdleConns = 50
+maxOpenConns = 100
+enableDetailSQL = true
+enableAccessInterceptor = true
+enableAccessInterceptorReq = true
+enableAccessInterceptorRes = true
 
 [notify.letter]
-
-[user-svc]
-[user-svc.server.grpc]
-network = "unix"
-host="user-svc.sock"
-enableAccessInterceptor = true
-enableAccessInterceptorRes = true
-enableAccessInterceptorReq = true
-
-
 
 [user-svc.cron.notify]
 enable=false
@@ -101,7 +133,6 @@ salt = "xuserh"
 length = 5
 
 
-
 [user-svc.oauth]
 delimiter = "$"
 salt = 8
@@ -113,12 +144,10 @@ tokenDomain = "localhost"
 subTokenRefreshTime = 3600
 redirectUriSeparator = "," # 支持多redirect uri
 
-
 [resource-svc]
 mode = "local"
 [resource-svc.registry]
 [resource-svc.k8s]
-
 
 [resource-svc.cron.score]
 enable = true
@@ -127,7 +156,6 @@ enableImmediatelyRun = false        # 是否立刻执行，默认否
 delayExecType = "skip"  # skip，queue，concurrent，如果上一个任务执行较慢，到达了新任务执行时间，那么新任务选择跳过，排队，并发执行的策略，新任务默认选择skip策略
 enableSeconds = false # 启用秒单位
 spec = "* * * * *"
-
 
 [resource-svc.ehttp]
 debug = true
@@ -145,15 +173,16 @@ length = 6
 salt = "hello"
 length = 10
 
-
 [bff]
 mode = "local"
-debug = true
-mainDomain = "ecodepost.com"
-domain = "https://ecodepost.com"
+domain = "https://of.yitum.com"
 referralLink="https://%s/join-cmt?ref=%s#快来加入ecodepost吧！"
 
 [bff.k8s]
+namespaces = ["of"]
+addr = "https://60.205.217.184:6443"
+debug = true
+token = "eyJhbGciOiJSUzI1NiIsImtpZCI6ImlVQXpLQTY5VTdlLWpyZjNkanRLZ2YyVUl3RGFQQlFIaDd3T0pyUlpzMU0ifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJvZiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkZWZhdWx0LXRva2VuLTV3bDVyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImRlZmF1bHQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiJlNDQ5N2JiYi0yMmMxLTRkNjAtOGZkMC0wMGQwY2NmZDk5ODQiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6b2Y6ZGVmYXVsdCJ9.p8YYL8XDbdR75YVkiGuuWbHU_EUDf8jEk0ngoIlbwL1mhnGu14bhVHFFq3X5MZEy27sCY87GpPtuTgT6j5N0Sq2kP06-O7IAXhIoTxRvpvrUBXA-E6M-gRK6pWke_uqbI7FsQF-4qv8-qFFPTdqrQUm8gye8eCkOpKvDfkA46SZe8Ld-aTFz74tbQIAP6F6-Y7FjE7nddW7aUnvxnLQ3V2dfg4ROfNPco_t6cpYSoH3LHgvuX3lxlw2xYo-5qQ1vFRJ5-BYzk0x10CW7JSDKXl9h1rsPWQrLB3CLnVP8PRecKQrBSkd0cr6CH8FUsf5mF0SVE2hRvXob0PFRz6xwHg"
 
 [bff.logger.default]
 level = "debug"
@@ -162,14 +191,14 @@ level = "debug"
 connectTimeout = "3s"
 secure = false
 
-
 [bff.sso]
 ssoAddr = "unix:user-svc.sock"
+#ssoAddr = "127.0.0.1:9101"
 tokenSecure = false # 关闭https写入
 clientId = "clientid123456"
 clientSecret = "secret123456"
-authURL = "http://of-sso.ecodepost.com/oauth/login"
-registerURL = "http://of-sso.ecodepost.com/register"
+authURL = "http://of-sso.yitum.com/oauth/login"
+registerURL = "http://of-sso.yitum.com/register"
 redirectURL = "http://localhost:8000/api/oauth/code"
-logoutURL = "http://of-sso.ecodepost.com/oauth/logout"
+logoutURL = "http://of-sso.yitum.com/oauth/logout"
 needRefreshTokenDuration = 3600
