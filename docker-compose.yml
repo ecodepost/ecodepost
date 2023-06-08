@@ -45,7 +45,7 @@ services:
     volumes:
       - ./data/all-in-one/ecodepost/file:/ecodepost/file
       - ./data/all-in-one/ecodepost/logs:/ecodepost/logs
-      - ./data/all-in-one/ecodepost/conf/local.toml:/ecodepost/local.toml
+      - ./data/all-in-one/ecodepost/conf/local.toml:/ecodepost/config/local.toml
     restart: always
     links:
       - mysql
