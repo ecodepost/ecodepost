@@ -1,6 +1,6 @@
 APP_NAME:=ecodepost
 APP_PATH:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-COMPILE_OUT:=$(APP_PATH)/../bin/$(APP_NAME)
+COMPILE_OUT:=$(APP_PATH)/bin/$(APP_NAME)
 SCRIPT_PATH:=$(APP_PATH)/scripts
 
 run_user:export EGO_DEBUG=true
