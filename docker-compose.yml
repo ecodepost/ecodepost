@@ -1,10 +1,12 @@
 version: '3'
+
 networks:
   ecodepost-net:
     driver: bridge
+
 services:
   mysql:
-    image: mysql:5.7
+    image: mysql:5.7.42
     platform: linux/amd64
     networks:
       - ecodepost-net
@@ -28,8 +30,10 @@ services:
       - ecodepost-net
     expose:
       - 6380
-    restart: always
+    ports:
+      - "6380:6380"
     command: [ '--port 6380' ]
+    restart: always
   ecodepost:
     image: zxmfke/ecodepost:latest
     networks:
@@ -43,6 +47,9 @@ services:
       - ./data/all-in-one/ecodepost/logs:/ecodepost/logs
       - ./data/all-in-one/ecodepost/conf/local.toml:/ecodepost/local.toml
     restart: always
+    links:
+      - mysql
+      - redis
     depends_on:
       - mysql
       - redis

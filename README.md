@@ -10,12 +10,23 @@
 * 专栏
 * 友链
 
+## 安装
+
+- For Docker
+
+```bash
+# clone ecodepost source code.
+git clone https://github.com/ecodepost/ecodepost.git
+
+docker-compose up
+```
+
+
 ## 如何启动
 ### 下载release包
 ### 创建数据库
 ```sql
-CREATE DATABASE `post_main`;
-CREATE DATABASE `post_user`;
+CREATE DATABASE `ecodepost`;
 ```
 ### 修改配置
 ```toml
@@ -39,9 +50,5 @@ export EGO_DEBUG=true && ./ecodepost
 访问 https://localhost:9002
 
 ## todo
-* 合并成一个数据库
-* 优化配置
-* docker-compose
-* 自动生成一个管理员账号
 * 接口全部变成/api
 
