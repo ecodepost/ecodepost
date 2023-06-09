@@ -70,8 +70,8 @@ cdnName="http://localhost:9002"
 prefix="postimage"
 [oss.alists]
 regionId = "cn-beijing"
-accessKeyID = "LTAI5tReEpjDR285oSGZBrW7"
-accessKeySecret = "sr8eptIkWuptNnD28ChiKtWih2GbD4"
+accessKeyID = "****"
+accessKeySecret = "*****"
 roleArn = "acs:ram::1600609249574749:role/ramosstest"
 policy = '''
 {
@@ -180,9 +180,9 @@ referralLink="https://%s/join-cmt?ref=%s#快来加入ecodepost吧！"
 
 [bff.k8s]
 namespaces = ["of"]
-addr = "https://60.205.217.184:6443"
+addr = "https://127.0.0.1:6443"
 debug = true
-token = "eyJhbGciOiJSUzI1NiIsImtpZCI6ImlVQXpLQTY5VTdlLWpyZjNkanRLZ2YyVUl3RGFQQlFIaDd3T0pyUlpzMU0ifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJvZiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJkZWZhdWx0LXRva2VuLTV3bDVyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImRlZmF1bHQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiJlNDQ5N2JiYi0yMmMxLTRkNjAtOGZkMC0wMGQwY2NmZDk5ODQiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6b2Y6ZGVmYXVsdCJ9.p8YYL8XDbdR75YVkiGuuWbHU_EUDf8jEk0ngoIlbwL1mhnGu14bhVHFFq3X5MZEy27sCY87GpPtuTgT6j5N0Sq2kP06-O7IAXhIoTxRvpvrUBXA-E6M-gRK6pWke_uqbI7FsQF-4qv8-qFFPTdqrQUm8gye8eCkOpKvDfkA46SZe8Ld-aTFz74tbQIAP6F6-Y7FjE7nddW7aUnvxnLQ3V2dfg4ROfNPco_t6cpYSoH3LHgvuX3lxlw2xYo-5qQ1vFRJ5-BYzk0x10CW7JSDKXl9h1rsPWQrLB3CLnVP8PRecKQrBSkd0cr6CH8FUsf5mF0SVE2hRvXob0PFRz6xwHg"
+token = "***"
 
 [bff.logger.default]
 level = "debug"
