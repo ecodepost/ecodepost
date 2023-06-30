@@ -34,4 +34,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: docker.io/zxmfke/ecodepost:latest
+          tags: docker.io/ecodeclub/ecodepost:latest
