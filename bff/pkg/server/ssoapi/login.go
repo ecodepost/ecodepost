@@ -33,10 +33,10 @@ func LoginDirect(c *bffcore.Context) {
 		return
 	}
 	// 直接登录模式
-	responseTypeLoginDirect(c, reqView, ssoservice.PasswordLoginType)
+	responseTypeLogin(c, reqView, ssoservice.PasswordLoginType, false)
 }
 
-func responseTypeLoginDirect(c *bffcore.Context, reqView dto.OauthDirectRequest, loginType ssoservice.LoginType) {
+func responseTypeLogin(c *bffcore.Context, reqView dto.OauthDirectRequest, loginType ssoservice.LoginType, isDirect bool) {
 	userInfo, showTips, err := ssoservice.User.Verify(c.Request.Context(), dto.OauthRequest{
 		Account:  reqView.Account,
 		Password: reqView.Password,
@@ -46,17 +46,19 @@ func responseTypeLoginDirect(c *bffcore.Context, reqView dto.OauthDirectRequest,
 		c.JSONE(1, showTips, err)
 		return
 	}
+	responseSsoLogin(c, userInfo.User.Uid, isDirect)
+}
 
+func responseSsoLogin(c *bffcore.Context, uid int64, isDirect bool) {
 	parentToken, _ := c.GetParentToken()
 	loginRes, err := invoker.GrpcSso.Login(c.Request.Context(), &ssov1.LoginReq{
 		ClientId:     econf.GetString("bff.sso.clientId"),
 		ClientSecret: econf.GetString("bff.sso.clientSecret"),
 		RedirectUri:  econf.GetString("bff.sso.redirectUri"),
 		ParentToken:  parentToken,
-		Uid:          userInfo.User.Uid,
-		Password:     reqView.Password,
+		Uid:          uid,
 		ClientIp:     c.ClientIP(),
-		UserAgent:    c.GetHeader("Userabnc-Agent"),
+		UserAgent:    c.GetHeader("User-Agent"),
 	})
 	if err != nil {
 		c.JSONE(1, "登录失败", err)
@@ -64,7 +66,12 @@ func responseTypeLoginDirect(c *bffcore.Context, reqView dto.OauthDirectRequest,
 	}
 
 	c.Login(loginRes.Parent)
-	c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), "x-saas-uid", userInfo.User.Uid))
+	c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), "x-saas-uid", uid))
 	c.SetCookie(oauthTokenName, loginRes.Sub.Token, int(loginRes.Sub.ExpiresIn), "/", loginRes.Sub.Domain, false, true)
+
+	if isDirect {
+		c.Redirect(302, loginRes.Sub.RedirectUri)
+		return
+	}
 	c.JSONOK()
 }

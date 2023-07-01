@@ -71,8 +71,6 @@ func (m *LoginReq) validate(all bool) error {
 
 	// no validation rules for Uid
 
-	// no validation rules for Password
-
 	// no validation rules for ClientIp
 
 	// no validation rules for UserAgent
@@ -541,6 +539,8 @@ func (m *Token) validate(all bool) error {
 	// no validation rules for AuthAt
 
 	// no validation rules for ExpiresIn
+
+	// no validation rules for RedirectUri
 
 	if len(errors) > 0 {
 		return TokenMultiError(errors)

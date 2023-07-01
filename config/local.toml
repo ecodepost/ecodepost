@@ -202,3 +202,20 @@ registerURL = "http://of-sso.yitum.com/register"
 redirectURL = "http://localhost:8000/api/oauth/code"
 logoutURL = "http://of-sso.yitum.com/oauth/logout"
 needRefreshTokenDuration = 3600
+
+
+# 网站应用
+[oauth.wechat.web]
+appID = "wxad8b466f58be9790"
+appSecret = "05eec426cb9f3170606018480cd20477"
+redirectUri = "https://of.yitum.com/sso/api/code/wechat1"
+scope = "snsapi_login"
+
+# 公众号
+[oauth.wechat.h5]
+appID = "wx0c158a0ead9ebe3b"
+appSecret = "8356ea8c2a8171569746746cf6729889"
+redirectUri = "https://of.yitum.com/sso/api/code/wechat2"
+scope = "snsapi_userinfo"
+token = "rLlcjKDraqxTdaJD"
+encodingAESKey = "C8AopabkMosHW58TCR5h5q5elhgrijGI37wdBmFa7Ri"

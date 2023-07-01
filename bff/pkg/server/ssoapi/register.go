@@ -48,5 +48,5 @@ func Register(c *bffcore.Context) {
 	}
 
 	// 直接登录模式
-	responseTypeLoginDirect(c, req, ssoservice.RegisterLoginType)
+	responseTypeLogin(c, req, ssoservice.RegisterLoginType, false)
 }

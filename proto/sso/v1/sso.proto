@@ -42,12 +42,10 @@ message LoginReq {
   string parentToken = 4;
   // uid
   int64 uid = 5;
-  // password
-  string password = 6;
-  // 用户clientip
-  string clientIp = 7;
+  // 用户clientIp
+  string clientIp = 6;
   // 用户ua
-  string userAgent = 8;
+  string userAgent = 7;
 }
 
 message LoginRes {
@@ -72,6 +70,8 @@ message Token {
   int64 authAt = 3;
   // Token 多长时间后过期(s)
   int64 expiresIn = 4;
+  // 跳转地址
+  string redirectUri = 5;
 }
 
 message VerifyReq {

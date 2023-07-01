@@ -54,6 +54,12 @@ func (GrpcServer) Login(ctx context.Context, req *ssov1.LoginReq) (res *ssov1.Lo
 		err = fmt.Errorf("HandleAuthorizeRequest build fail, err: " + err.Error())
 		return
 	}
+	// Output redirect with parameters
+	redirectUri, err := ar.GetRedirectUrl()
+	if err != nil {
+		err = fmt.Errorf("HandleAuthorizeRequest GetRedirectUrl fail, err: " + err.Error())
+		return
+	}
 
 	basicAuth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", req.ClientId, req.ClientSecret)))
 	tokenAr := invoker.SsoServer.HandleAccessRequest(ctx, server.ParamAccessRequest{
@@ -100,9 +106,10 @@ func (GrpcServer) Login(ctx context.Context, req *ssov1.LoginReq) (res *ssov1.Lo
 			AuthAt:    ar.GetParentToken().AuthAt,
 		},
 		Sub: &ssov1.Token{
-			Domain:    econf.GetString("oauth.tokenDomain"),
-			Token:     tokenAr.GetOutput("access_token").(string),
-			ExpiresIn: tokenAr.GetOutput("expires_in").(int64),
+			Domain:      econf.GetString("oauth.tokenDomain"),
+			Token:       tokenAr.GetOutput("access_token").(string),
+			ExpiresIn:   tokenAr.GetOutput("expires_in").(int64),
+			RedirectUri: redirectUri,
 		},
 	}, nil
 }

@@ -20,33 +20,36 @@ import (
 	statv1 "ecodepost/pb/stat/v1"
 	uploadv1 "ecodepost/pb/upload/v1"
 	userv1 "ecodepost/pb/user/v1"
-
 	"github.com/BurntSushi/toml"
 	"github.com/ego-component/ek8s"
 	k8sregistry "github.com/ego-component/ek8s/registry"
 	"github.com/ego-component/eredis"
+	"github.com/ego-component/ewechat"
+	"github.com/ego-component/ewechat/oauth"
 	"github.com/gotomicro/ego/client/egrpc"
 	"github.com/gotomicro/ego/core/econf"
 )
 
 var (
-	Sso           *bffsso.Component
-	Redis         *eredis.Component
-	GrpcCommunity communityv1.CommunityClient
-	GrpcComment   commentv1.CommentClient
-	GrpcSpace     spacev1.SpaceClient
-	GrpcFile      filev1.FileClient
-	GrpcArticle   articlev1.ArticleClient
-	GrpcColumn    columnv1.ColumnClient
-	GrpcNotify    notifyv1.NotifyClient
-	GrpcQuestion  questionv1.QuestionClient
-	GrpcUpload    uploadv1.UploadClient
-	GrpcUser      userv1.UserClient
-	GrpcCount     countv1.CountClient
-	GrpcStat      statv1.StatClient
-	GrpcPms       pmsv1.PmsClient
-	GrpcLogger    loggerv1.LoggerClient
-	GrpcSso       ssov1.SsoClient
+	Sso            *bffsso.Component
+	Redis          *eredis.Component
+	GrpcCommunity  communityv1.CommunityClient
+	GrpcComment    commentv1.CommentClient
+	GrpcSpace      spacev1.SpaceClient
+	GrpcFile       filev1.FileClient
+	GrpcArticle    articlev1.ArticleClient
+	GrpcColumn     columnv1.ColumnClient
+	GrpcNotify     notifyv1.NotifyClient
+	GrpcQuestion   questionv1.QuestionClient
+	GrpcUpload     uploadv1.UploadClient
+	GrpcUser       userv1.UserClient
+	GrpcCount      countv1.CountClient
+	GrpcStat       statv1.StatClient
+	GrpcPms        pmsv1.PmsClient
+	GrpcLogger     loggerv1.LoggerClient
+	GrpcSso        ssov1.SsoClient
+	WechatOauthWeb *oauth.Oauth
+	WechatOauthH5  *oauth.Oauth
 )
 
 func Init() error {
@@ -72,6 +75,8 @@ func Init() error {
 	GrpcLogger = loggerv1.NewLoggerClient(userConn)
 	Redis = eredis.Load("redis").Build()
 	Sso = bffsso.Load("bff.sso").Build()
+	WechatOauthWeb = ewechat.Load("wechat.oauth.web").Build().GetOauth()
+	WechatOauthH5 = ewechat.Load("wechat.oauth.h5").Build().GetOauth()
 	return nil
 }
 

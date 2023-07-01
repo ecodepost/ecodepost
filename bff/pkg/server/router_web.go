@@ -71,17 +71,23 @@ func registerRouter(r *egin.Component) error {
 		if maxAge == 0 {
 			maxAge = 86400
 		}
-		if strings.HasSuffix(ctx.Request.URL.Path, ".js") || strings.HasSuffix(ctx.Request.URL.Path, ".css") {
+		if strings.HasSuffix(ctx.Request.URL.Path, ".js") || strings.HasSuffix(ctx.Request.URL.Path, ".css") || strings.HasSuffix(ctx.Request.URL.Path, ".png") || strings.HasSuffix(ctx.Request.URL.Path, ".img") || strings.HasSuffix(ctx.Request.URL.Path, ".ico") {
 			ctx.Header("Cache-Control", fmt.Sprintf("public, max-age=%d", maxAge))
 			ctx.FileFromFS(ctx.Request.URL.Path, r.HTTPEmbedFs())
 			return
 		}
-		ctx.FileFromFS(ctx.Request.URL.Path, r.HTTPEmbedFs())
+		// todo 因为有一些动态路由，html，无法渲染，暂时这么处理
+		//ctx.FileFromFS(ctx.Request.URL.Path, r.HTTPEmbedFs())
+		ctx.FileFromFS("/", r.HTTPEmbedFs())
 		return
 	}))
 
-	apiSsoGroup := r.Group("/sso/api")
+	apiSsoGroup := r.Group("/api/sso")
+	apiSsoGroup.GET("/wechat/validate", bffcore.Handle(ssoapi.WechatValidate))                                // 短信登录
+	apiSsoGroup.GET("/login/wechat", ssoapi.AuthExist(), bffcore.Handle(ssoapi.LoginWechat))                  // 微信登录
 	apiSsoGroup.POST("/login/basic", ssoapi.AuthExist(), bffcore.Handle(ssoapi.LoginDirect))                  // 密码登录
+	apiSsoGroup.GET("/code/wechatWeb", ssoapi.AuthExist(), bffcore.Handle(ssoapi.CodeWechatWeb))              // 短信登录
+	apiSsoGroup.GET("/code/wechatH5", ssoapi.AuthExist(), bffcore.Handle(ssoapi.CodeWechatH5))                // 短信登录
 	apiSsoGroup.POST("/register", ssoapi.AuthExist(), bffcore.Handle(ssoapi.Register))                        // 密码登录
 	apiSsoGroup.POST("/phone/sendRegisterCode", ssoapi.AuthExist(), bffcore.Handle(ssoapi.RegisterPhoneCode)) // 发送注册手机验证码
 
